@@ -1,1 +1,0 @@
-# encalma-panel
