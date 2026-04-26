@@ -632,10 +632,13 @@ function procesarDatos(data){
       grid.innerHTML=ord.map(f=>"<div class='turno-row'><div class='turno-hora'>"+fmtHora(f[1])+"</div><div class='turno-sep'></div><div style='flex:1'><div class='turno-nombre'>"+(f[2]||"-")+"</div><div class='turno-srv'>"+(f[3]||"-")+(f[5]?" - GC: "+f[5]:"")+"</div></div>"+badge(f[6])+"<div class='turno-monto'>"+fmtMonto(f[8])+"</div></div>").join("");
     }
 
-    [{id:"srv-Relajante",k:["relajante"]},{id:"srv-Descontracturante",k:["descontracturante"]},{id:"srv-Drenaje",k:["drenaje"]},{id:"srv-GiftCard",k:["gift","utilizada"]}].forEach(function(s){
+    [{id:"srv-Relajante",k:["relajante"]},{id:"srv-Descontracturante",k:["descontracturante"]},{id:"srv-Drenaje",k:["drenaje"]}].forEach(function(s){
       const el=document.getElementById(s.id);
       if(el)el.textContent=mesReal.filter(f=>s.k.some(k=>norm(f[3]).includes(k))).length;
     });
+    // Gift Cards utilizadas — contar desde hoja GiftCards
+    const gcUtilEl=document.getElementById("srv-GiftCard");
+    if(gcUtilEl)gcUtilEl.textContent=giftcards.slice(1).filter(f=>norm(f[5]).includes("utilizada")).length;
 
     const mesTodos=turnos.filter(f=>esMes(f[0]));
     document.getElementById("stPend").textContent=mesTodos.filter(f=>norm(f[6]).includes("pendiente")).length;
