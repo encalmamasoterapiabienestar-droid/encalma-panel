@@ -543,16 +543,31 @@ function setFecha(){
   const meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   document.getElementById("fechaHoy").textContent=dias[d.getDay()]+" "+d.getDate()+" de "+meses[d.getMonth()]+" - "+d.getFullYear();
 }
-function esHoy(v){if(!v)return false;const h=new Date(),f=new Date(v);return f.getFullYear()===h.getFullYear()&&f.getMonth()===h.getMonth()&&f.getDate()===h.getDate();}
-function esMes(v){if(!v)return false;const h=new Date(),f=new Date(v);return f.getFullYear()===h.getFullYear()&&f.getMonth()===h.getMonth();}
-function fmtHora(v){if(!v)return "--:--";try{const d=new Date(v);if(!isNaN(d))return d.toTimeString().slice(0,5);}catch(e){}return String(v).slice(0,5);}
+function esHoy(v){
+  if(!v)return false;
+  const h=new Date();
+  const f=new Date(v);
+  // Adjust for Argentina timezone (UTC-3)
+  const fArg=new Date(f.getTime()-(-3*60*60*1000));
+  return fArg.getFullYear()===h.getFullYear()&&fArg.getMonth()===h.getMonth()&&fArg.getDate()===h.getDate();
+}
+function esMes(v){
+  if(!v)return false;
+  const h=new Date();
+  const f=new Date(v);
+  const fArg=new Date(f.getTime()-(-3*60*60*1000));
+  return fArg.getFullYear()===h.getFullYear()&&fArg.getMonth()===h.getMonth();
+}
+function fmtHora(v){if(!v)return "--:--";const s=String(v).trim();const m=s.match(/(\d{1,2}:\d{2})/);if(m)return m[1];try{const d=new Date(v);if(!isNaN(d))return d.toTimeString().slice(0,5);}catch(e){}return s.slice(0,5);}
 function fmtMonto(v){const n=Number(String(v||0).replace(/[^\d.]/g,""));if(!n||isNaN(n))return "";return "$"+n.toLocaleString("es-AR");}
 function fmtFecha(v){if(!v)return "-";try{const d=new Date(v);if(!isNaN(d))return d.toLocaleDateString("es-AR");}catch(e){}return String(v);}
 function norm(s){return String(s||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");}
 function badge(est){
   const e=norm(est);
   const m={confirmado:"b-conf",pendiente:"b-pend",realizado:"b-real",cancelado:"b-canc"};
-  return "<span class='badge "+(m[e]||"b-pend")+"'>"+est+"</span>";
+  const cls=m[e]||"b-pend";
+  const label=String(est||"").charAt(0).toUpperCase()+String(est||"").slice(1).toLowerCase();
+  return "<span class='badge "+cls+"'>"+label+"</span>";
 }
 
 async function cargarDatos(){
@@ -565,14 +580,18 @@ async function cargarDatos(){
     const data=await res.json();
     datosGlobales=data;
     const turnos=Array.isArray(data)?data.slice(1).filter(f=>f[0]):(data.turnos||[]).slice(1).filter(f=>f[0]);
+    console.log("Total turnos:", turnos.length);
+    console.log("Primer turno:", JSON.stringify(turnos[0]));
+    console.log("Estado turno 0:", turnos[0]&&turnos[0][6]);
+    console.log("norm estado:", turnos[0]&&norm(turnos[0][6]));
     const clientes=Array.isArray(data)?[]:(data.clientes||[]);
     const giftcards=Array.isArray(data)?[]:(data.giftcards||[]);
 
     const hoy=turnos.filter(f=>esHoy(f[0]));
     document.getElementById("kpiHoy").textContent=hoy.length||"0";
-    document.getElementById("kpiHoySub").textContent=hoy.filter(f=>norm(f[6])==="confirmado").length+" conf - "+hoy.filter(f=>norm(f[6])==="pendiente").length+" pend";
+    document.getElementById("kpiHoySub").textContent=hoy.filter(f=>norm(f[6]).includes("confirmado")).length+" conf - "+hoy.filter(f=>norm(f[6]).includes("pendiente")).length+" pend";
 
-    const mesReal=turnos.filter(f=>esMes(f[0])&&norm(f[6])==="realizado");
+    const mesReal=turnos.filter(f=>esMes(f[0])&&norm(f[6]).includes("realizado"));
     const totalIng=mesReal.reduce((a,f)=>a+(Number(f[8])||0),0);
     document.getElementById("kpiIngresos").textContent=fmtMonto(totalIng)||"$0";
     document.getElementById("kpiIngresosSub").textContent=mesReal.length+" sesiones realizadas";
@@ -580,9 +599,10 @@ async function cargarDatos(){
     const gcActivas=giftcards.slice(1).filter(f=>norm(f[5])==="activa").length;
     document.getElementById("kpiGC").textContent=gcActivas||"0";
 
-    const totalCl=clientes.slice(1).filter(f=>f[0]).length;
+    const totalCl=clientes.slice(1).filter(f=>f[0]||f[1]).length;
     document.getElementById("kpiClientes").textContent=totalCl||"0";
-    document.getElementById("kpiClientesSub").textContent="+"+clientes.slice(1).filter(f=>f[0]&&esMes(f[6])).length+" nuevos este mes";
+    const nuevosMes=clientes.slice(1).filter(f=>(f[0]||f[1])&&esMes(f[6])).length;
+    document.getElementById("kpiClientesSub").textContent=nuevosMes>0?"+"+nuevosMes+" nuevos este mes":"activos";
 
     const grid=document.getElementById("turnosHoyGrid");
     if(hoy.length===0){grid.innerHTML="<div class='empty-msg'>No hay sesiones programadas para hoy</div>";}
@@ -597,10 +617,10 @@ async function cargarDatos(){
     });
 
     const mesTodos=turnos.filter(f=>esMes(f[0]));
-    document.getElementById("stPend").textContent=mesTodos.filter(f=>norm(f[6])==="pendiente").length;
-    document.getElementById("stConf").textContent=mesTodos.filter(f=>norm(f[6])==="confirmado").length;
-    document.getElementById("stReal").textContent=mesTodos.filter(f=>norm(f[6])==="realizado").length;
-    document.getElementById("stCanc").textContent=mesTodos.filter(f=>norm(f[6])==="cancelado").length;
+    document.getElementById("stPend").textContent=mesTodos.filter(f=>norm(f[6]).includes("pendiente")).length;
+    document.getElementById("stConf").textContent=mesTodos.filter(f=>norm(f[6]).includes("confirmado")).length;
+    document.getElementById("stReal").textContent=mesTodos.filter(f=>norm(f[6]).includes("realizado")).length;
+    document.getElementById("stCanc").textContent=mesTodos.filter(f=>norm(f[6]).includes("cancelado")).length;
 
   }catch(err){
     console.error("Error:",err);
@@ -638,10 +658,10 @@ function mostrarFicha(){
   document.getElementById("fichaAvatar").textContent=iniciales;
   document.getElementById("fichaId").textContent=nro;
   document.getElementById("fichaNombre").textContent=nombre;
-  document.getElementById("fichaNac").textContent=fmtFecha(c[2]);
-  document.getElementById("fichaTel").textContent=c[3]||"-";
-  document.getElementById("fichaEmail").textContent=c[5]||"-";
-  document.getElementById("fichaUltima").textContent=fmtFecha(c[7]);
+  document.getElementById("fichaNac").textContent=fmtFecha(c[2]);   // C = FechaNac
+  document.getElementById("fichaTel").textContent=c[3]||"-";        // D = Tel
+  document.getElementById("fichaEmail").textContent=c[5]||"-";      // F = Email
+  document.getElementById("fichaUltima").textContent=fmtFecha(c[7]); // H = UltimaSesion
   let alerta="",patologia="";
   for(let i=0;i<fichero.length;i++){
     if(String(fichero[i][0]).trim()===String(nro).trim()){
@@ -666,7 +686,7 @@ function mostrarFicha(){
   if(c[8]){badge2.innerHTML="<span class='ficha-badge fb-ok'>Ficha Completa</span>";}
   else{badge2.innerHTML="<span class='ficha-badge fb-no'>Ficha Incompleta</span>";}
   const meses=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-  const hist=turnos.slice(1).filter(function(t){return norm(t[2])===norm(nombre)&&norm(t[6])==="realizado";}).sort(function(a,b){return new Date(a[0])-new Date(b[0]);});
+  const hist=turnos.slice(1).filter(function(t){return norm(t[2])===norm(nombre)&&norm(t[6]).includes("realizado");}).sort(function(a,b){return new Date(a[0])-new Date(b[0]);});
   document.getElementById("fichaTotal").textContent=hist.length+" sesiones registradas";
   const lista=document.getElementById("fichaHistorial");
   if(hist.length===0){lista.innerHTML="<div class='empty-msg'>Sin sesiones registradas</div>";}
