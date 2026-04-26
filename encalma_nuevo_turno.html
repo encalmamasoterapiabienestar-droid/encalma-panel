@@ -67,6 +67,15 @@ body::before{content:"";position:fixed;inset:0;
   background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
 .field input:focus,.field select:focus{border-color:rgba(90,122,94,0.45);background:rgba(255,255,255,0.9);}
 .hint{font-size:10px;color:var(--warm-gray-light);margin-top:2px;font-style:italic;}
+.turno-btn{padding:10px 16px;border-radius:10px;border:1.5px solid rgba(122,158,126,0.25);
+  background:rgba(232,240,233,0.5);color:var(--sage-dark);font-family:"Jost",sans-serif;
+  font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;min-width:80px;text-align:center;}
+.turno-btn:hover:not(.ocupado):not(.selected){background:rgba(122,158,126,0.15);border-color:rgba(122,158,126,0.4);}
+.turno-btn.selected{background:var(--sage-dark);color:white;border-color:var(--sage-dark);}
+.turno-btn.ocupado{background:rgba(180,100,100,0.07);color:var(--red-soft);border-color:rgba(180,100,100,0.2);
+  cursor:not-allowed;text-decoration:line-through;opacity:0.6;}
+.turno-btn.domingo{background:rgba(138,128,120,0.06);color:var(--warm-gray-light);
+  border-color:rgba(138,128,120,0.15);cursor:not-allowed;font-style:italic;}
 
 /* DATALIST styling */
 input[list]::-webkit-calendar-picker-indicator{opacity:0.5;cursor:pointer;}
@@ -172,11 +181,17 @@ input[list]::-webkit-calendar-picker-indicator{opacity:0.5;cursor:pointer;}
     <div class="form-grid cols3">
       <div class="field">
         <label>Fecha</label>
-        <input type="date" id="fecha" onchange="actualizarResumen()">
+        <input type="date" id="fecha" onchange="cargarGrilla();actualizarResumen()">
       </div>
-      <div class="field">
-        <label>Hora</label>
-        <input type="time" id="hora" onchange="actualizarResumen()">
+      <div class="field" style="grid-column:1/-1">
+        <label>Horarios disponibles</label>
+        <div id="grillaDia" style="display:none;margin-top:6px;">
+          <div id="grillaTurnos" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+        <div id="sinDia" style="font-size:11px;color:var(--warm-gray-light);font-style:italic;margin-top:6px;">
+          Seleccioná una fecha para ver los horarios
+        </div>
+        <input type="hidden" id="hora">
       </div>
       <div class="field">
         <label>Servicio</label>
@@ -317,6 +332,87 @@ function cargarAPI() {
   s.id = "_jsonp";
   s.src = API_URL + "?callback=__cb";
   document.head.appendChild(s);
+}
+
+// GRILLA DE HORARIOS
+function cargarGrilla() {
+  const fechaVal = document.getElementById("fecha").value;
+  const grilla = document.getElementById("grillaDia");
+  const sinDia = document.getElementById("sinDia");
+  const grillaDiv = document.getElementById("grillaTurnos");
+  const horaInput = document.getElementById("hora");
+
+  // Reset hora
+  horaInput.value = "";
+  actualizarResumen();
+
+  if (!fechaVal) {
+    grilla.style.display = "none";
+    sinDia.style.display = "block";
+    return;
+  }
+
+  const [y,m,d] = fechaVal.split("-");
+  const fecha = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+  const diaSemana = fecha.getDay(); // 0=Dom, 1=Lun... 6=Sab
+
+  // Domingo = sin turnos
+  if (diaSemana === 0) {
+    grilla.style.display = "block";
+    sinDia.style.display = "none";
+    grillaDiv.innerHTML = "<span class='turno-btn domingo'>Sin turnos los domingos</span>";
+    return;
+  }
+
+  // Horarios según día
+  let horarios = [];
+  if (diaSemana >= 1 && diaSemana <= 5) {
+    // Lunes a viernes: 16:00 a 21:00
+    horarios = ["16:00","17:30","19:30"];
+  } else if (diaSemana === 6) {
+    // Sábado: 10:00 a 19:00
+    horarios = ["10:00","11:30","13:00","14:30","16:00","17:30"];
+  }
+
+  // Turnos ocupados del día
+  const ocupados = new Set();
+  if (datosAPI && datosAPI.turnos) {
+    datosAPI.turnos.slice(1).forEach(function(t) {
+      if (!t[0]) return;
+      try {
+        const ft = new Date(t[0]);
+        const fArg = new Date(ft.getTime() + 3*60*60*1000);
+        if (fArg.getFullYear()===parseInt(y) && fArg.getMonth()===parseInt(m)-1 && fArg.getDate()===parseInt(d)) {
+          const estado = (t[6]||"").toString().trim().toUpperCase();
+          if (estado !== "CANCELADO") {
+            // Extraer hora del campo hora (col B)
+            const horaStr = String(t[1]||"").replace(" hs","").trim();
+            if (horaStr) ocupados.add(horaStr);
+          }
+        }
+      } catch(e){}
+    });
+  }
+
+  grilla.style.display = "block";
+  sinDia.style.display = "none";
+  grillaDiv.innerHTML = "";
+
+  horarios.forEach(function(h) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "turno-btn" + (ocupados.has(h) ? " ocupado" : "");
+    btn.textContent = h + " hs";
+    if (!ocupados.has(h)) {
+      btn.onclick = function() {
+        document.querySelectorAll(".turno-btn").forEach(function(b){ b.classList.remove("selected"); });
+        btn.classList.add("selected");
+        horaInput.value = h;
+        actualizarResumen();
+      };
+    }
+    grillaDiv.appendChild(btn);
+  });
 }
 
 function autocompletar() {
