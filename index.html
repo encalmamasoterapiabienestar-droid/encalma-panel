@@ -617,7 +617,7 @@ function procesarDatos(data){
     document.getElementById("kpiIngresos").textContent=fmtMonto(totalIng)||"$0";
     document.getElementById("kpiIngresosSub").textContent=mesReal.length+" sesiones realizadas";
 
-    const gcActivas=giftcards.slice(1).filter(f=>norm(f[5])==="activa").length;
+    const gcActivas=giftcards.slice(1).filter(f=>norm(f[5]).includes("activa")).length;
     document.getElementById("kpiGC").textContent=gcActivas||"0";
 
     const totalCl=clientes.slice(1).filter(f=>f[0]||f[1]).length;
@@ -632,7 +632,7 @@ function procesarDatos(data){
       grid.innerHTML=ord.map(f=>"<div class='turno-row'><div class='turno-hora'>"+fmtHora(f[1])+"</div><div class='turno-sep'></div><div style='flex:1'><div class='turno-nombre'>"+(f[2]||"-")+"</div><div class='turno-srv'>"+(f[3]||"-")+(f[5]?" - GC: "+f[5]:"")+"</div></div>"+badge(f[6])+"<div class='turno-monto'>"+fmtMonto(f[8])+"</div></div>").join("");
     }
 
-    [{id:"srv-Relajante",k:["relajante"]},{id:"srv-Descontracturante",k:["descontracturante"]},{id:"srv-Drenaje",k:["drenaje"]},{id:"srv-GiftCard",k:["gift"]}].forEach(function(s){
+    [{id:"srv-Relajante",k:["relajante"]},{id:"srv-Descontracturante",k:["descontracturante"]},{id:"srv-Drenaje",k:["drenaje"]},{id:"srv-GiftCard",k:["gift","utilizada"]}].forEach(function(s){
       const el=document.getElementById(s.id);
       if(el)el.textContent=mesReal.filter(f=>s.k.some(k=>norm(f[3]).includes(k))).length;
     });
