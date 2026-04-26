@@ -290,7 +290,13 @@ input[list]::-webkit-calendar-picker-indicator{opacity:0.5;cursor:pointer;}
 const API_URL = "https://script.google.com/macros/s/AKfycbxsSTRVO4sFLFqKkbOgTIRMowg9hX0Or-oBXCEaLw10EZUwZfbyhiNtk2OWKVkE9x_K/exec";
 let datosAPI = null;
 
-window.addEventListener("load", cargarAPI);
+window.addEventListener("load", function(){
+  if(sessionStorage.getItem("encalma_auth")!=="1"){
+    window.location.href="index.html";
+    return;
+  }
+  cargarAPI();
+});
 
 function cargarAPI() {
   const old = document.getElementById("_jsonp");
