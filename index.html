@@ -570,14 +570,35 @@ function badge(est){
   return "<span class='badge "+cls+"'>"+label+"</span>";
 }
 
-async function cargarDatos(){
+function cargarDatos(){
   const btn=document.getElementById("refreshBtn");
   const bar=document.getElementById("loadingBar");
   if(btn)btn.classList.add("spinning");
   bar.classList.add("active");
+  
+  // Remove old script if exists
+  const old=document.getElementById("jsonp_script");
+  if(old)old.remove();
+  
+  window.__jsonpCallback=function(data){
+    procesarDatos(data);
+    if(btn)btn.classList.remove("spinning");
+    bar.classList.remove("active");
+  };
+  
+  const script=document.createElement("script");
+  script.id="jsonp_script";
+  script.src=API_URL+"?callback=__jsonpCallback";
+  script.onerror=function(){
+    document.getElementById("turnosHoyGrid").innerHTML="<div class=\'empty-msg\' style=\'color:var(--red-soft)\'>Error al cargar datos.</div>";
+    if(btn)btn.classList.remove("spinning");
+    bar.classList.remove("active");
+  };
+  document.head.appendChild(script);
+}
+
+function procesarDatos(data){
   try{
-    const res=await fetch(API_URL);
-    const data=await res.json();
     datosGlobales=data;
     const turnos=Array.isArray(data)?data.slice(1).filter(f=>f[0]):(data.turnos||[]).slice(1).filter(f=>f[0]);
     console.log("Total turnos:", turnos.length);
@@ -624,10 +645,7 @@ async function cargarDatos(){
 
   }catch(err){
     console.error("Error:",err);
-    document.getElementById("turnosHoyGrid").innerHTML="<div class='empty-msg' style='color:var(--red-soft)'>Error al cargar datos.</div>";
-  }finally{
-    if(btn)btn.classList.remove("spinning");
-    bar.classList.remove("active");
+    document.getElementById("turnosHoyGrid").innerHTML="<div class=\'empty-msg\' style=\'color:var(--red-soft)\'>Error al cargar datos.</div>";
   }
 }
 
