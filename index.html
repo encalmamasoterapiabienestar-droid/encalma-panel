@@ -297,7 +297,12 @@ if(sessionStorage.getItem("encalma_auth")==="1"){
   document.addEventListener("DOMContentLoaded",function(){
     var ov=document.getElementById("loginOverlay");
     if(ov){ov.style.display="none";}
-    ir("portada");
+    if(sessionStorage.getItem("encalma_skip_portada")==="1"){
+      sessionStorage.removeItem("encalma_skip_portada");
+      ir("dashboard");
+    } else {
+      ir("portada");
+    }
   });
 }
 </script>
