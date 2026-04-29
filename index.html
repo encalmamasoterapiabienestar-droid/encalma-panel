@@ -747,7 +747,7 @@ function mostrarFicha(){
     if(String(anamnesis[i][2]||"").toLowerCase().trim()===String(nombre).toLowerCase().trim()){
       // Col M = indice 12 = alerta
       alerta=String(anamnesis[i][12]||"").replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}\u{1F300}-\u{1F9FF}]/gu,"").trim();
-      patologia="";
+      patologia=String(anamnesis[i][6]||"").trim();
       break;
     }
   }
