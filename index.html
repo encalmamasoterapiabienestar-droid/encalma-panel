@@ -744,7 +744,8 @@ function mostrarFicha(){
   let alerta="",patologia="";
   for(let i=0;i<fichero.length;i++){
     if(String(fichero[i][0]).trim()===String(nro).trim()){
-      alerta=String(fichero[i][1]||"").trim();
+      // Limpiar emojis y espacios del campo alerta
+      alerta=String(fichero[i][1]||"").replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}\u{1F300}-\u{1F9FF}]/gu,"").trim();
       patologia=String(fichero[i+1]?fichero[i+1][1]||"":"").trim();
       break;
     }
