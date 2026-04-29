@@ -753,12 +753,19 @@ function mostrarFicha(){
   const aTxt=document.getElementById("fichaAlertaTxt");
   const aPat=document.getElementById("fichaPatologia");
   const aIcon=document.getElementById("fichaAlertaIcon");
-  if(alerta&&norm(alerta).includes("precaucion")){
-    aBox.className="alerta-box alerta-prec";aTxt.style.color="var(--gold-dark)";
+  var alertaNorm=norm(alerta);
+  if(alerta&&(alertaNorm.includes("alerta")||alertaNorm.includes("clinica"))){
+    aBox.className="alerta-box";aBox.style.background="rgba(180,100,100,0.1)";aBox.style.border="1px solid rgba(180,100,100,0.3)";
+    aTxt.style.color="var(--red-soft)";
+    aTxt.textContent=alerta;aPat.textContent=patologia||"Sin patologia especificada";aIcon.setAttribute("stroke","#b46464");
+  } else if(alerta&&alertaNorm.includes("precaucion")){
+    aBox.className="alerta-box alerta-prec";aBox.style.background="";aBox.style.border="";
+    aTxt.style.color="var(--gold-dark)";
     aTxt.textContent=alerta;aPat.textContent=patologia||"Sin patologia especificada";aIcon.setAttribute("stroke","#a07840");
   } else {
-    aBox.className="alerta-box alerta-ok";aTxt.style.color="var(--sage-dark)";
-    aTxt.textContent="Sin alertas medicas";aPat.textContent="";
+    aBox.className="alerta-box alerta-ok";aBox.style.background="";aBox.style.border="";
+    aTxt.style.color="var(--sage-dark)";
+    aTxt.textContent=alerta||"Sin alertas medicas";aPat.textContent=patologia||"";
     aIcon.innerHTML="<polyline points='20 6 9 17 4 12'/>";aIcon.setAttribute("stroke","#5a7a5e");
   }
   const badge2=document.getElementById("fichaBadge");
