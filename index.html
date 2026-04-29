@@ -742,11 +742,25 @@ function mostrarFicha(){
   document.getElementById("fichaEmail").textContent=c[5]||"-";      // F = Email
   document.getElementById("fichaUltima").textContent=fmtFecha(c[7]); // H = UltimaSesion
   let alerta="",patologia="";
-  for(let i=0;i<fichero.length;i++){
-    if(String(fichero[i][0]).trim()===String(nro).trim()){
-      // Limpiar emojis y espacios del campo alerta
-      alerta=String(fichero[i][1]||"").replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}\u{1F300}-\u{1F9FF}]/gu,"").trim();
-      patologia=String(fichero[i+1]?fichero[i+1][1]||"":"").trim();
+  const anamnesis=(datosGlobales.anamnesis||[]);
+  for(let i=1;i<anamnesis.length;i++){
+    if(String(anamnesis[i][2]||"").toLowerCase().trim()===String(nombre).toLowerCase().trim()){
+      // Col M = indice 12 = alerta
+      alerta=String(anamnesis[i][12]||"").replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}\u{1F300}-\u{1F9FF}]/gu,"").trim();
+      patologia="";
+      break;
+    }
+  }
+  if(!alerta){
+    for(let i=0;i<fichero.length;i++){
+      if(String(fichero[i][0]).trim()===String(nro).trim()){
+        alerta=String(fichero[i][1]||"").replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}\u{1F300}-\u{1F9FF}]/gu,"").trim();
+        patologia=String(fichero[i+1]?fichero[i+1][1]||"":"").trim();
+        break;
+      }
+    }
+  }
+  // fallthrough
       break;
     }
   }
