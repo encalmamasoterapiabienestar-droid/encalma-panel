@@ -436,7 +436,7 @@ if(sessionStorage.getItem("encalma_auth")==="1"){
   <main class="main">
     <div class="kpi-row">
       <div class="kpi-card c-sage"><div class="kpi-ico sage"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="kpi-lbl sage">Turnos Hoy</div><div class="kpi-val sage" id="kpiHoy">-</div><div class="kpi-sub-t" id="kpiHoySub">cargando...</div></div>
-      <div class="kpi-card c-gold"><div class="kpi-ico gold"><svg viewBox="0 0 24 24" fill="none" stroke="#a07840" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="kpi-lbl gold">Ingresos del Mes</div><div class="kpi-val gold" id="kpiIngresos">-</div><div class="kpi-sub-t" id="kpiIngresosSub">cargando...</div></div>
+      <div class="kpi-card c-gold"><div class="kpi-ico gold"><svg viewBox="0 0 24 24" fill="none" stroke="#a07840" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="kpi-lbl gold" style="display:flex;align-items:center;justify-content:space-between;">Ingresos del Mes<button id="btnOjoIngresos" style="background:none;border:none;cursor:pointer;color:var(--warm-gray);padding:0;display:flex;" title="Mostrar/ocultar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="kpi-val gold" id="kpiIngresos">-</div><div class="kpi-sub-t" id="kpiIngresosSub">cargando...</div></div>
       <div class="kpi-card c-sage"><div class="kpi-ico sage"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a5e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div><div class="kpi-lbl sage">Gift Cards Activas</div><div class="kpi-val" id="kpiGC">-</div><div class="kpi-sub-t">sin vencimiento</div></div>
       <div class="kpi-card c-warm"><div class="kpi-ico warm"><svg viewBox="0 0 24 24" fill="none" stroke="#8a8078" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="kpi-lbl warm">Total Clientes</div><div class="kpi-val" id="kpiClientes">-</div><div class="kpi-sub-t" id="kpiClientesSub">cargando...</div></div>
     </div>
@@ -672,7 +672,11 @@ function procesarDatos(data){
 
     const mesReal=turnos.filter(f=>esMes(f[0])&&norm(f[6]).includes("realizado"));
     const totalIng=mesReal.reduce((a,f)=>a+(Number(f[8])||0),0);
-    document.getElementById("kpiIngresos").textContent=fmtMonto(totalIng)||"$0";
+    ingresosReal=fmtMonto(totalIng)||"$0";
+    document.getElementById("kpiIngresos").textContent="••••••";
+    ingresosVisible=false;
+    var ojo=document.getElementById("btnOjoIngresos");
+    if(ojo) ojo.style.color="var(--warm-gray-light)";
     document.getElementById("kpiIngresosSub").textContent=mesReal.length+" sesiones realizadas";
 
     const gcActivas=giftcards.slice(1).filter(f=>norm(f[5]).includes("activa")).length;
@@ -823,6 +827,23 @@ function mostrarGC(){
 }
 
 setInterval(cargarDatos,5*60*1000);
+
+var ingresosVisible = false;
+var ingresosReal = "-";
+document.addEventListener("DOMContentLoaded", function(){
+  var btn = document.getElementById("btnOjoIngresos");
+  if(btn) btn.addEventListener("click", function(){
+    ingresosVisible = !ingresosVisible;
+    var el = document.getElementById("kpiIngresos");
+    if(ingresosVisible){
+      el.textContent = ingresosReal;
+      btn.style.color = "var(--sage-dark)";
+    } else {
+      el.textContent = "••••••";
+      btn.style.color = "var(--warm-gray-light)";
+    }
+  });
+});
 </script>
 </body>
 </html>
