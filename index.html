@@ -713,7 +713,7 @@ function procesarDatos(data){
 
     const mesTodos=turnos.filter(f=>esMes(f[0]));
     document.getElementById("stPend").textContent=mesTodos.filter(f=>norm(f[6]).includes("pendiente")).length;
-    document.getElementById("stConf").textContent=mesTodos.filter(f=>norm(f[6]).includes("confirmado")).length;
+    document.getElementById("stConf").textContent=filas.filter(f=>norm(f[6]).includes("confirmado")).length;
     document.getElementById("stReal").textContent=mesTodos.filter(f=>norm(f[6]).includes("realizado")).length;
     document.getElementById("stCanc").textContent=mesTodos.filter(f=>norm(f[6]).includes("cancelado")).length;
 
