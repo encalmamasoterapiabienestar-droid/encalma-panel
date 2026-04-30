@@ -684,8 +684,9 @@ function procesarDatos(data){
     const totalTransf=mesReal.filter(f=>norm(f[7]).includes("transfer")).reduce((a,f)=>a+(Number(f[8])||0),0);
     const totalEfect=mesReal.filter(f=>norm(f[7]).includes("efectivo")).reduce((a,f)=>a+(Number(f[8])||0),0);
     ingresosReal=fmtMonto(totalIng)||"$0";
+    ingresosDesglose="Transf: "+fmtMonto(totalTransf)+" · Efect: "+fmtMonto(totalEfect);
     document.getElementById("kpiIngresos").textContent="••••••";
-    document.getElementById("kpiIngresosSub").textContent="Transf: "+fmtMonto(totalTransf)+" · Efect: "+fmtMonto(totalEfect);
+    document.getElementById("kpiIngresosSub").textContent="••••••";
     ingresosVisible=false;
     var ojo=document.getElementById("btnOjoIngresos");
     if(ojo) ojo.style.color="var(--warm-gray-light)";
@@ -855,6 +856,7 @@ setInterval(actualizarReloj, 1000);
 
 var ingresosVisible = false;
 var ingresosReal = "-";
+var ingresosDesglose = "";
 document.addEventListener("DOMContentLoaded", function(){
   var btn = document.getElementById("btnOjoIngresos");
   if(btn) btn.addEventListener("click", function(){
@@ -862,9 +864,11 @@ document.addEventListener("DOMContentLoaded", function(){
     var el = document.getElementById("kpiIngresos");
     if(ingresosVisible){
       el.textContent = ingresosReal;
+      document.getElementById("kpiIngresosSub").textContent = ingresosDesglose;
       btn.style.color = "var(--sage-dark)";
     } else {
       el.textContent = "••••••";
+      document.getElementById("kpiIngresosSub").textContent = "••••••";
       btn.style.color = "var(--warm-gray-light)";
     }
   });
