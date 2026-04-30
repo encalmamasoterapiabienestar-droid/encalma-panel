@@ -712,10 +712,10 @@ function procesarDatos(data){
     if(gcUtilEl)gcUtilEl.textContent=giftcards.slice(1).filter(f=>norm(f[5]).includes("utilizada")).length;
 
     const mesTodos=turnos.filter(f=>esMes(f[0]));
-    document.getElementById("stPend").textContent=filas.filter(f=>norm(f[6]).includes("pendiente")).length;
-    document.getElementById("stConf").textContent=filas.filter(f=>norm(f[6]).includes("confirmado")).length;
-    document.getElementById("stReal").textContent=filas.filter(f=>norm(f[6]).includes("realizado")).length;
-    document.getElementById("stCanc").textContent=filas.filter(f=>norm(f[6]).includes("cancelado")).length;
+    document.getElementById("stPend").textContent=turnos.filter(f=>norm(f[6]).includes("pendiente")).length;
+    document.getElementById("stConf").textContent=turnos.filter(f=>norm(f[6]).includes("confirmado")).length;
+    document.getElementById("stReal").textContent=turnos.filter(f=>norm(f[6]).includes("realizado")).length;
+    document.getElementById("stCanc").textContent=turnos.filter(f=>norm(f[6]).includes("cancelado")).length;
 
   }catch(err){
     console.error("Error:",err);
