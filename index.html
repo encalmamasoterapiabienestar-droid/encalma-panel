@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>En Calma — Masoterapia & Bienestar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --arena: #f2ece3; --arena-clara: #faf7f3;
+  --mar: #3d6b7a; --mar-oscuro: #244d5a; --mar-claro: #6fa3b4;
+  --tierra: #7a6448; --texto: #2a2723; --texto-suave: #7a736a;
+  --linea: rgba(61,107,122,0.18);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Jost', sans-serif; background: var(--arena); color: var(--texto); overflow-x: hidden; }
+
+/* HEADER */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  padding: 1.1rem 2.5rem; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(242,236,227,0.92); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--linea);
+}
+.logo-nombre { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 400; letter-spacing: 0.1em; color: var(--mar-oscuro); line-height: 1; }
+.logo-sub { font-size: 0.58rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--tierra); margin-top: 0.1rem; }
+.header-right { display: flex; align-items: center; gap: 1.25rem; }
+.nav-ig { font-size: 0.72rem; letter-spacing: 0.12em; color: var(--texto-suave); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
+.nav-ig:hover { color: var(--mar); }
+.btn-acceso { padding: 0.45rem 1.1rem; border: 1px solid var(--mar); border-radius: 2rem; background: transparent; color: var(--mar-oscuro); font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; font-family: 'Jost', sans-serif; font-weight: 500; transition: all 0.2s; }
+.btn-acceso:hover { background: var(--mar-oscuro); color: white; border-color: var(--mar-oscuro); }
+
+/* HERO */
+.hero { margin-top: 64px; min-height: calc(100svh - 64px); display: grid; grid-template-columns: 1fr 1fr; }
+.hero-texto { display: flex; flex-direction: column; justify-content: center; padding: 5rem 4rem 4rem 5rem; background: var(--arena-clara); }
+.hero-eyebrow { font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--tierra); margin-bottom: 1.4rem; opacity: 0; animation: fadeUp 0.7s ease 0.1s forwards; }
+.hero-titulo { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.6rem, 4vw, 3.8rem); font-weight: 300; line-height: 1.12; color: var(--mar-oscuro); margin-bottom: 1.4rem; opacity: 0; animation: fadeUp 0.7s ease 0.25s forwards; }
+.hero-titulo em { font-style: italic; color: var(--mar); }
+.hero-bajada { font-size: 0.92rem; color: var(--texto-suave); line-height: 1.8; font-weight: 300; max-width: 360px; margin-bottom: 2.5rem; opacity: 0; animation: fadeUp 0.7s ease 0.4s forwards; }
+.hero-acciones { display: flex; flex-direction: column; gap: 0.9rem; max-width: 300px; opacity: 0; animation: fadeUp 0.7s ease 0.55s forwards; }
+.btn-turno-hero { display: flex; align-items: center; justify-content: center; padding: 1rem 1.5rem; background: var(--mar-oscuro); color: white; border: none; border-radius: 0.5rem; font-size: 0.82rem; font-weight: 500; font-family: 'Jost', sans-serif; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: all 0.25s; box-shadow: 0 4px 20px rgba(36,77,90,0.22); }
+.btn-turno-hero:hover { background: var(--mar); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(36,77,90,0.28); }
+.btn-qr-hero { display: flex; align-items: center; justify-content: center; padding: 0.85rem 1.5rem; background: transparent; color: var(--mar-oscuro); border: 1px solid var(--linea); border-radius: 0.5rem; font-size: 0.78rem; font-family: 'Jost', sans-serif; cursor: pointer; letter-spacing: 0.06em; transition: all 0.2s; }
+.btn-qr-hero:hover { border-color: var(--mar); background: rgba(61,107,122,0.05); }
+.hero-imagen { overflow: hidden; }
+.hero-imagen img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+
+/* SEPARADOR */
+.sep { text-align: center; padding: 3.5rem 2rem 1.5rem; font-size: 0.58rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--tierra); }
+.sep::before { content: ''; display: block; width: 40px; height: 1px; background: var(--tierra); margin: 0 auto 1rem; opacity: 0.5; }
+
+/* SERVICIOS */
+.servicios { padding: 0 3rem 5rem; max-width: 1100px; margin: 0 auto; }
+.servicios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.servicio-card { background: var(--arena-clara); border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--linea); transition: all 0.3s; }
+.servicio-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(36,77,90,0.12); border-color: rgba(61,107,122,0.3); }
+.servicio-img { width: 100%; height: 200px; object-fit: cover; object-position: center top; display: block; }
+.servicio-body { padding: 1.25rem 1.4rem 1.5rem; }
+.servicio-nombre { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 400; color: var(--mar-oscuro); margin-bottom: 0.5rem; line-height: 1.2; }
+.servicio-desc { font-size: 0.78rem; color: var(--texto-suave); line-height: 1.7; font-weight: 300; margin-bottom: 1rem; }
+.servicio-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 0.9rem; border-top: 1px solid var(--linea); }
+.servicio-duracion { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tierra); }
+.servicio-cta { font-size: 0.7rem; color: var(--mar); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; text-decoration: none; transition: color 0.2s; }
+.servicio-cta:hover { color: var(--mar-oscuro); }
+
+/* BANDA GIFT CARD */
+.banda-regalo { background: var(--mar-oscuro); color: white; padding: 5rem; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 4rem; }
+.regalo-texto h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight: 300; line-height: 1.2; margin-bottom: 1rem; }
+.regalo-texto h2 em { font-style: italic; color: var(--mar-claro); }
+.regalo-texto p { font-size: 0.85rem; color: rgba(255,255,255,0.6); line-height: 1.8; font-weight: 300; max-width: 380px; margin-bottom: 1.75rem; }
+.btn-regalo { display: inline-flex; align-items: center; padding: 0.85rem 1.75rem; border: 1px solid rgba(255,255,255,0.3); border-radius: 0.5rem; color: white; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; font-family: 'Jost', sans-serif; transition: all 0.25s; cursor: pointer; background: transparent; text-decoration: none; }
+.btn-regalo:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+.regalo-imagen { border-radius: 0.75rem; overflow: hidden; max-height: 460px; }
+.regalo-imagen img { width: 100%; height: 100%; object-fit: contain; display: block; background: var(--arena); }
+
+/* CONTACTO */
+.contacto { padding: 5rem 3rem; max-width: 800px; margin: 0 auto; text-align: center; }
+.contacto h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 300; color: var(--mar-oscuro); margin-bottom: 0.75rem; }
+.contacto h2 em { font-style: italic; }
+.contacto > p { font-size: 0.88rem; color: var(--texto-suave); line-height: 1.8; margin-bottom: 2.5rem; font-weight: 300; }
+.contacto-datos { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+.dato { display: flex; flex-direction: column; gap: 0.3rem; text-align: center; }
+.dato-label { font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--tierra); }
+.dato-valor { font-size: 0.9rem; color: var(--mar-oscuro); }
+.dato-valor a { color: inherit; text-decoration: none; transition: color 0.2s; }
+.dato-valor a:hover { color: var(--mar); }
+.btn-wa { display: inline-flex; align-items: center; gap: 0.7rem; padding: 0.95rem 2rem; background: #25D366; color: white; border: none; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; font-family: 'Jost', sans-serif; letter-spacing: 0.06em; text-decoration: none; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 16px rgba(37,211,102,0.25); }
+.btn-wa:hover { background: #1ebe5d; transform: translateY(-2px); }
+.btn-wa svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* FOOTER */
+footer { border-top: 1px solid var(--linea); padding: 1.75rem 3rem; display: flex; align-items: center; justify-content: space-between; background: var(--arena-clara); }
+.footer-marca { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--mar-oscuro); font-weight: 400; letter-spacing: 0.08em; }
+.footer-copy { font-size: 0.65rem; color: var(--texto-suave); letter-spacing: 0.08em; }
+
+/* MODALES */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(36,40,38,0.55); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; padding: 1.5rem; }
+.modal-overlay.activo { display: flex; }
+@keyframes modalEntra { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.qr-box { background: var(--arena-clara); border-radius: 1rem; padding: 2.5rem 2rem; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 32px 64px rgba(36,40,38,0.22); animation: modalEntra 0.3s ease; }
+.qr-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; color: var(--mar-oscuro); margin-bottom: 0.4rem; }
+.qr-box > p { font-size: 0.78rem; color: var(--texto-suave); line-height: 1.6; margin-bottom: 1.5rem; }
+.qr-img-wrap { width: 180px; height: 180px; margin: 0 auto 1.5rem; border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--linea); background: white; padding: 10px; }
+.qr-img-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.qr-info { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--tierra); margin-bottom: 0.75rem; }
+.qr-datos { font-size: 0.82rem; color: var(--texto-suave); line-height: 2.1; margin-bottom: 1.5rem; }
+.qr-datos strong { color: var(--mar-oscuro); font-weight: 500; }
+
+.login-box { background: white; border-radius: 1.25rem; padding: 2rem 1.75rem 1.5rem; max-width: 340px; width: 100%; text-align: center; box-shadow: 0 32px 64px rgba(36,40,38,0.22); animation: modalEntra 0.3s ease; }
+.login-logo-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 0.9rem; border: 2.5px solid #c9a84c; display: block; margin-left: auto; margin-right: auto; }
+.login-marca { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: #2d5a3d; margin-bottom: 0.1rem; }
+.login-sub-marca { font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--tierra); margin-bottom: 0.9rem; }
+.login-divider { width: 40px; height: 1px; background: var(--linea); margin: 0 auto 0.9rem; }
+.login-sub { font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--texto-suave); margin-bottom: 1rem; }
+.login-input-wrap { position: relative; margin-bottom: 0.5rem; }
+.login-input-wrap .input-pass { margin-bottom: 0; padding-right: 2.8rem; }
+.btn-ojo { position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--texto-suave); padding: 0; display: flex; align-items: center; }
+.btn-ojo svg { width: 18px; height: 18px; }
+.login-frase { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.85rem; color: var(--texto-suave); margin: 1rem 0 0.9rem; }
+.login-datos { font-size: 0.72rem; color: var(--texto-suave); line-height: 1.9; }
+.login-tels { display: flex; justify-content: center; gap: 1rem; }
+.input-pass { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--linea); border-radius: 0.5rem; font-size: 0.9rem; font-family: 'Jost', sans-serif; background: white; color: var(--texto); outline: none; text-align: center; letter-spacing: 0.2em; margin-bottom: 0.9rem; transition: border-color 0.2s; }
+.input-pass:focus { border-color: var(--mar); }
+.btn-ingresar { width: 100%; padding: 0.85rem; background: var(--mar-oscuro); color: white; border: none; border-radius: 0.5rem; font-size: 0.78rem; font-weight: 500; font-family: 'Jost', sans-serif; cursor: pointer; letter-spacing: 0.12em; text-transform: uppercase; transition: background 0.2s; margin-bottom: 0.75rem; }
+.btn-ingresar:hover { background: var(--mar); }
+.error-pass { font-size: 0.73rem; color: #b94040; min-height: 1rem; margin-bottom: 0.5rem; }
+.btn-cerrar { padding: 0.6rem 1.75rem; border: 1px solid var(--linea); border-radius: 2rem; background: transparent; color: var(--texto-suave); font-size: 0.72rem; cursor: pointer; font-family: 'Jost', sans-serif; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.2s; }
+.btn-cerrar:hover { border-color: var(--mar); color: var(--mar); }
+
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  header { padding: 1rem 1.25rem; }
+  .nav-ig { display: none; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-texto { padding: 3rem 1.75rem; order: 2; }
+  .hero-imagen { height: 72vw; min-height: 260px; order: 1; }
+  .hero-titulo { font-size: 2.2rem; }
+  .hero-acciones { max-width: 100%; }
+  .servicios { padding: 0 1.25rem 4rem; }
+  .servicios-grid { grid-template-columns: 1fr; }
+  .banda-regalo { grid-template-columns: 1fr; padding: 3rem 1.5rem; gap: 2rem; }
+  .contacto { padding: 3rem 1.5rem; }
+  .contacto-datos { gap: 1.75rem; }
+  footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-nombre">En Calma</div>
+    <div class="logo-sub">Masoterapia & Bienestar</div>
+  </div>
+  <div class="header-right">
+    <a href="https://instagram.com/encalmamasoterapia" target="_blank" class="nav-ig">@encalmamasoterapia</a>
+    <a href="dashboard.html" class="btn-acceso">Acceso profesional</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-texto">
+    <div class="hero-eyebrow">Haedo, Buenos Aires</div>
+    <h1 class="hero-titulo">Masajes que<br><em>restauran</em> el<br>cuerpo y la mente</h1>
+    <p class="hero-bajada">Un espacio pensado para vos. Cada sesión es única, diseñada desde la escucha, el movimiento consciente y la atención personalizada.</p>
+    <div class="hero-acciones">
+      <a href="nuevo_turno_publico.html" class="btn-turno-hero">Reservar turno</a>
+      <button class="btn-qr-hero" onclick="abrirQR()">Registrarse como cliente</button>
+    </div>
+  </div>
+  <div class="hero-imagen">
+    <img src="Diego_Masajista.png" alt="Diego — En Calma Masoterapia">
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<div class="sep">Servicios</div>
+<section class="servicios">
+  <div class="servicios-grid">
+
+    <div class="servicio-card">
+      <img src="Masaje_Relajante.png" alt="Masaje Relajante" class="servicio-img">
+      <div class="servicio-body">
+        <div class="servicio-nombre">Masaje Relajante</div>
+        <div class="servicio-desc">Disminuye el estrés, promueve calma y bienestar, mejora el descanso y libera tensiones emocionales acumuladas.</div>
+        <div class="servicio-footer">
+          <span class="servicio-duracion">60 min</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="servicio-card">
+      <img src="Masaje_Descontracturante.png" alt="Masaje Descontracturante" class="servicio-img">
+      <div class="servicio-body">
+        <div class="servicio-nombre">Masaje Descontracturante</div>
+        <div class="servicio-desc">Alivia tensiones musculares profundas, reduce dolores de cuello y espalda, mejora la movilidad y la postura corporal.</div>
+        <div class="servicio-footer">
+          <span class="servicio-duracion">60 min</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="servicio-card">
+      <img src="Drenaje_Linfatico.png" alt="Drenaje Linfático Manual" class="servicio-img">
+      <div class="servicio-body">
+        <div class="servicio-nombre">Drenaje Linfático Manual</div>
+        <div class="servicio-desc">Estimula el sistema linfático, elimina líquidos retenidos, reduce pesadez e inflamación y mejora la circulación.</div>
+        <div class="servicio-footer">
+          <span class="servicio-duracion">60 min</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- BANDA GIFT CARD -->
+<section class="banda-regalo">
+  <div class="regalo-texto">
+    <h2>Regalá un momento<br>de <em>calma</em> verdadera</h2>
+    <p>Las Gift Cards de En Calma son una forma de regalar bienestar real. Disponibles para cualquier servicio, válidas para quien las recibe.</p>
+    <a href="https://wa.me/5491133252814?text=Hola%20Diego!%20Quisiera%20consultar%20por%20una%20Gift%20Card." target="_blank" class="btn-regalo">Consultar Gift Cards</a>
+  </div>
+  <div class="regalo-imagen">
+    <img src="Diego_GiftCards.png" alt="Gift Cards En Calma">
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section class="contacto">
+  <h2>Reservá tu <em>lugar</em></h2>
+  <p>Podés reservar directamente desde aquí o escribirnos por WhatsApp.<br>Atendemos en Haedo, Buenos Aires.</p>
+  <div class="contacto-datos">
+    <div class="dato">
+      <span class="dato-label">Zona</span>
+      <span class="dato-valor">Haedo, Buenos Aires</span>
+    </div>
+    <div class="dato">
+      <span class="dato-label">Instagram</span>
+      <span class="dato-valor"><a href="https://instagram.com/encalmamasoterapia" target="_blank">@encalmamasoterapia</a></span>
+    </div>
+    <div class="dato">
+      <span class="dato-label">WhatsApp</span>
+      <span class="dato-valor"><a href="https://wa.me/5491133252814" target="_blank">+54 9 11 3325-2814</a></span>
+    </div>
+  </div>
+  <a href="https://wa.me/5491133252814?text=Hola%20Diego!%20Quisiera%20consultar%20por%20un%20turno." target="_blank" class="btn-wa">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Escribir por WhatsApp
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-marca">En Calma</div>
+  <div class="footer-copy">Masoterapia & Bienestar · Haedo, Buenos Aires</div>
+</footer>
+
+<!-- MODAL QR -->
+<div class="modal-overlay" id="modalQR">
+  <div class="qr-box">
+    <h3>Registrate como cliente</h3>
+    <p>Escaneá el código para completar tu ficha de anamnesis y quedar registrado como cliente</p>
+    <div class="qr-img-wrap">
+      <canvas id="qrCanvas"></canvas>
+    </div>
+    <div class="qr-info">o contactanos directo</div>
+    <div class="qr-datos">
+      <div><strong>Instagram</strong> &nbsp;@encalmamasoterapia</div>
+      <div><strong>WhatsApp</strong> &nbsp;+54 9 11 3325-2814</div>
+      <div><strong>Zona</strong> &nbsp;Haedo, Buenos Aires</div>
+    </div>
+    <button class="btn-cerrar" onclick="cerrarModal('modalQR')">Cerrar</button>
+  </div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div class="modal-overlay" id="modalLogin">
+  <div class="login-box">
+    <img src="encalma_logo_1.png" alt="En Calma" class="login-logo-img">
+    <div class="login-marca">En Calma</div>
+    <div class="login-sub-marca">Masoterapia & Bienestar</div>
+    <div class="login-divider"></div>
+    <div class="login-sub">Acceso restringido</div>
+    <div class="login-input-wrap">
+      <input type="password" class="input-pass" id="inputPass" placeholder="Contraseña" onkeydown="if(event.key==='Enter') verificarPass()"/>
+      <button class="btn-ojo" onclick="togglePass()" tabindex="-1">
+        <svg id="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <div class="error-pass" id="errorPass"></div>
+    <button class="btn-ingresar" onclick="verificarPass()">Ingresar</button>
+    <div class="login-frase">Cuidar tu cuerpo es cuidar tu mente.</div>
+    <div class="login-divider"></div>
+    <div class="login-datos">
+      <span>📍 Tacuarí 347, Haedo, Buenos Aires</span>
+      <div class="login-tels">
+        <span>📞 11 3325-2814</span>
+        <span>📞 11 6681-1497</span>
+      </div>
+      <span>📸 @encalma_bienestar</span>
+    </div>
+    <button class="btn-cerrar" onclick="cerrarModal('modalLogin')" style="margin-top:1rem">Cancelar</button>
+  </div>
+</div>
+
+<script>
+  const PASS = 'EnCalma2025';
+  const PANEL_URL = 'https://encalmamasoterapiabienestar-droid.github.io/encalma-panel/dashboard.html';
+
+  function abrirQR() { document.getElementById('modalQR').classList.add('activo'); }
+
+  function abrirLogin() {
+    if (sessionStorage.getItem('encalma_auth') === 'ok') { window.location.href = PANEL_URL; return; }
+    document.getElementById('modalLogin').classList.add('activo');
+    setTimeout(() => document.getElementById('inputPass').focus(), 200);
+  }
+
+  function cerrarModal(id) {
+    document.getElementById(id).classList.remove('activo');
+    if (id === 'modalLogin') {
+      document.getElementById('inputPass').value = '';
+      document.getElementById('errorPass').textContent = '';
+    }
+  }
+
+  function verificarPass() {
+    const val = document.getElementById('inputPass').value;
+    if (val === PASS) {
+      sessionStorage.setItem('encalma_auth', 'ok');
+      window.location.href = PANEL_URL;
+    } else {
+      document.getElementById('errorPass').textContent = 'Contraseña incorrecta';
+      document.getElementById('inputPass').value = '';
+      document.getElementById('inputPass').focus();
+    }
+  }
+
+  function togglePass() {
+    const inp = document.getElementById('inputPass');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', function(e) { if (e.target === this) cerrarModal(this.id); });
+  });
+
+  // QR generado dinámicamente — apunta al Form de anamnesis
+  const QR_URL = 'https://forms.gle/82koHna2g3xFKAq77';
+
+  function generarQR() {
+    const canvas = document.getElementById('qrCanvas');
+    if (!canvas || canvas.dataset.generado) return;
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    script.onload = function() {
+      canvas.style.display = 'none';
+      const wrap = canvas.parentElement;
+      wrap.innerHTML = '';
+      new QRCode(wrap, {
+        text: QR_URL,
+        width: 160,
+        height: 160,
+        colorDark: '#244d5a',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    };
+    document.head.appendChild(script);
+    canvas.dataset.generado = '1';
+  }
+
+  // Generar al abrir el modal
+  const _abrirQR = abrirQR;
+  abrirQR = function() {
+    _abrirQR();
+    setTimeout(generarQR, 80);
+  };
+</script>
+</body>
+</html>
