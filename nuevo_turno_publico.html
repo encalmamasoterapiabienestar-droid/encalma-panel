@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reservar Turno — En Calma</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --arena: #f2ece3; --arena-clara: #faf7f3;
+  --mar: #3d6b7a; --mar-oscuro: #244d5a; --mar-claro: #6fa3b4;
+  --tierra: #7a6448; --texto: #2a2723; --texto-suave: #7a736a;
+  --linea: rgba(61,107,122,0.18);
+  --ok: #3a7d5a; --error: #b94040;
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Jost', sans-serif; background: var(--arena); color: var(--texto); min-height: 100vh; }
+
+/* HEADER */
+header {
+  position: sticky; top: 0; z-index: 50;
+  padding: 1.1rem 2.5rem; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(242,236,227,0.95); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--linea);
+}
+.logo-nombre { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 400; letter-spacing: 0.1em; color: var(--mar-oscuro); line-height: 1; text-decoration: none; display: block; }
+.logo-sub { font-size: 0.56rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--tierra); margin-top: 0.1rem; }
+.btn-volver { padding: 0.45rem 1rem; border: 1px solid var(--linea); border-radius: 2rem; background: transparent; color: var(--texto-suave); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; font-family: 'Jost', sans-serif; text-decoration: none; transition: all 0.2s; }
+.btn-volver:hover { border-color: var(--mar); color: var(--mar); }
+
+/* CONTENIDO */
+.contenido { max-width: 680px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+
+.page-eyebrow { font-size: 0.58rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--tierra); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem; }
+.page-eyebrow::before { content: ''; height: 1px; width: 2rem; background: var(--tierra); opacity: 0.5; }
+
+.page-titulo { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 300; color: var(--mar-oscuro); margin-bottom: 0.5rem; line-height: 1.1; }
+.page-titulo em { font-style: italic; color: var(--mar); }
+.page-sub { font-size: 0.85rem; color: var(--texto-suave); line-height: 1.7; font-weight: 300; margin-bottom: 2.5rem; }
+
+/* STEPPER */
+.stepper { display: flex; align-items: center; gap: 0; margin-bottom: 2.5rem; }
+.step { display: flex; align-items: center; gap: 0.5rem; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--linea); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--texto-suave); font-weight: 500; transition: all 0.3s; flex-shrink: 0; }
+.step-label { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--texto-suave); transition: color 0.3s; }
+.step.activo .step-num { background: var(--mar-oscuro); border-color: var(--mar-oscuro); color: white; }
+.step.activo .step-label { color: var(--mar-oscuro); font-weight: 500; }
+.step.completo .step-num { background: var(--ok); border-color: var(--ok); color: white; }
+.step-linea { flex: 1; height: 1px; background: var(--linea); margin: 0 0.75rem; }
+
+/* SECCIONES */
+.seccion { display: none; animation: fadeUp 0.4s ease; }
+.seccion.activa { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* SELECTOR FECHA */
+.sec-titulo { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; color: var(--mar-oscuro); margin-bottom: 0.3rem; }
+.sec-sub { font-size: 0.78rem; color: var(--texto-suave); margin-bottom: 1.5rem; font-weight: 300; }
+
+.semana-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.semana-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mar-oscuro); font-weight: 500; }
+.btn-nav { width: 32px; height: 32px; border: 1px solid var(--linea); border-radius: 50%; background: transparent; cursor: pointer; color: var(--texto-suave); font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.btn-nav:hover { border-color: var(--mar); color: var(--mar); }
+.btn-nav:disabled { opacity: 0.3; cursor: default; }
+
+.dias-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; margin-bottom: 1.5rem; }
+.dia-btn { padding: 0.6rem 0.3rem; border: 1px solid var(--linea); border-radius: 0.5rem; background: var(--arena-clara); cursor: pointer; text-align: center; transition: all 0.2s; }
+.dia-btn:hover:not(:disabled) { border-color: var(--mar); }
+.dia-btn.seleccionado { background: var(--mar-oscuro); border-color: var(--mar-oscuro); color: white; }
+.dia-btn:disabled { opacity: 0.35; cursor: default; }
+.dia-nombre { font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: inherit; display: block; margin-bottom: 0.2rem; opacity: 0.7; }
+.dia-num { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; line-height: 1; display: block; }
+
+/* GRILLA HORARIA */
+.horarios-wrap { margin-top: 0.5rem; }
+.horarios-titulo { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tierra); margin-bottom: 0.75rem; }
+.horarios-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.hora-btn { padding: 0.55rem 1.1rem; border: 1px solid var(--linea); border-radius: 0.4rem; background: var(--arena-clara); cursor: pointer; font-size: 0.82rem; color: var(--mar-oscuro); font-family: 'Jost', sans-serif; transition: all 0.2s; }
+.hora-btn:hover:not(.ocupado):not(.seleccionado) { border-color: var(--mar); background: rgba(61,107,122,0.06); }
+.hora-btn.seleccionado { background: var(--mar-oscuro); border-color: var(--mar-oscuro); color: white; }
+.hora-btn.ocupado { opacity: 0.35; cursor: default; text-decoration: line-through; }
+.cargando-horas { font-size: 0.78rem; color: var(--texto-suave); padding: 0.75rem 0; }
+
+/* FORMULARIO */
+.form-group { margin-bottom: 1.25rem; }
+.form-label { display: block; font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tierra); margin-bottom: 0.5rem; }
+.form-input, .form-select {
+  width: 100%; padding: 0.8rem 1rem;
+  border: 1px solid var(--linea); border-radius: 0.5rem;
+  font-size: 0.9rem; font-family: 'Jost', sans-serif;
+  background: var(--arena-clara); color: var(--texto);
+  outline: none; transition: border-color 0.2s;
+  appearance: none;
+}
+.form-input:focus, .form-select:focus { border-color: var(--mar); }
+.form-input::placeholder { color: var(--texto-suave); opacity: 0.6; }
+.form-hint { font-size: 0.7rem; color: var(--texto-suave); margin-top: 0.35rem; }
+.select-wrap { position: relative; }
+.select-wrap::after { content: '↓'; position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--texto-suave); font-size: 0.8rem; pointer-events: none; }
+
+/* RESUMEN */
+.resumen-card { background: var(--arena-clara); border: 1px solid var(--linea); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+.resumen-fila { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--linea); }
+.resumen-fila:last-child { border-bottom: none; }
+.resumen-key { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--tierra); }
+.resumen-val { font-size: 0.88rem; color: var(--mar-oscuro); font-weight: 400; }
+
+/* BOTONES */
+.btn-primary { width: 100%; padding: 1rem; background: var(--mar-oscuro); color: white; border: none; border-radius: 0.5rem; font-size: 0.82rem; font-weight: 500; font-family: 'Jost', sans-serif; cursor: pointer; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.25s; margin-top: 0.5rem; box-shadow: 0 4px 20px rgba(36,77,90,0.2); }
+.btn-primary:hover:not(:disabled) { background: var(--mar); transform: translateY(-2px); }
+.btn-primary:disabled { opacity: 0.5; cursor: default; transform: none; }
+.btn-secondary { width: 100%; padding: 0.85rem; background: transparent; color: var(--texto-suave); border: 1px solid var(--linea); border-radius: 0.5rem; font-size: 0.78rem; font-family: 'Jost', sans-serif; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.2s; margin-top: 0.6rem; }
+.btn-secondary:hover { border-color: var(--mar); color: var(--mar); }
+
+/* ESTADO FINAL */
+.estado-wrap { text-align: center; padding: 3rem 1rem; }
+.estado-icono { font-size: 3rem; margin-bottom: 1.25rem; }
+.estado-titulo { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--mar-oscuro); margin-bottom: 0.75rem; }
+.estado-titulo em { font-style: italic; }
+.estado-desc { font-size: 0.88rem; color: var(--texto-suave); line-height: 1.8; font-weight: 300; max-width: 380px; margin: 0 auto 2rem; }
+.btn-wa-final { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.9rem 1.75rem; background: #25D366; color: white; border: none; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; font-family: 'Jost', sans-serif; letter-spacing: 0.06em; text-decoration: none; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 16px rgba(37,211,102,0.25); }
+.btn-wa-final:hover { background: #1ebe5d; transform: translateY(-2px); }
+.btn-wa-final svg { width: 18px; height: 18px; }
+
+.msg-error { background: rgba(185,64,64,0.08); border: 1px solid rgba(185,64,64,0.2); border-radius: 0.5rem; padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--error); margin-top: 0.75rem; display: none; }
+.msg-error.visible { display: block; }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  header { padding: 1rem 1.25rem; }
+  .contenido { padding: 2rem 1.25rem 4rem; }
+  .dias-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <a href="index.html" class="logo-nombre">En Calma</a>
+    <div class="logo-sub">Masoterapia & Bienestar</div>
+  </div>
+  <a href="index.html" class="btn-volver">← Volver</a>
+</header>
+
+<div class="contenido">
+
+  <div class="page-eyebrow">Haedo, Buenos Aires</div>
+  <h1 class="page-titulo">Reservá tu <em>turno</em></h1>
+  <p class="page-sub">Elegí el día y horario que mejor te quede. Tu reserva queda pendiente hasta la confirmación.</p>
+
+  <!-- STEPPER -->
+  <div class="stepper">
+    <div class="step activo" id="step1">
+      <div class="step-num">1</div>
+      <div class="step-label">Fecha y hora</div>
+    </div>
+    <div class="step-linea"></div>
+    <div class="step" id="step2">
+      <div class="step-num">2</div>
+      <div class="step-label">Tus datos</div>
+    </div>
+    <div class="step-linea"></div>
+    <div class="step" id="step3">
+      <div class="step-num">3</div>
+      <div class="step-label">Confirmar</div>
+    </div>
+  </div>
+
+  <!-- PASO 1: FECHA Y HORA -->
+  <div class="seccion activa" id="sec1">
+    <div class="sec-titulo">Elegí el día</div>
+    <div class="sec-sub">Lunes a viernes de tarde · Sábados por la mañana</div>
+
+    <div class="semana-nav">
+      <button class="btn-nav" id="btnSemanaAnterior" onclick="cambiarSemana(-1)" disabled>‹</button>
+      <span class="semana-label" id="labelSemana"></span>
+      <button class="btn-nav" onclick="cambiarSemana(1)">›</button>
+    </div>
+
+    <div class="dias-grid" id="diasGrid"></div>
+
+    <div class="horarios-wrap" id="horariosWrap" style="display:none">
+      <div class="horarios-titulo">Horarios disponibles</div>
+      <div class="horarios-grid" id="horariosGrid"></div>
+    </div>
+
+    <button class="btn-primary" id="btnPaso1" onclick="irPaso(2)" disabled>Continuar</button>
+  </div>
+
+  <!-- PASO 2: DATOS -->
+  <div class="seccion" id="sec2">
+    <div class="sec-titulo">Tus datos</div>
+    <div class="sec-sub">Completá la información para confirmar la reserva</div>
+
+    <div class="form-group">
+      <label class="form-label">Nombre y apellido</label>
+      <input type="text" class="form-input" id="inputNombre" placeholder="Ej: Diego Vazquez" autocomplete="name">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Teléfono</label>
+      <input type="tel" class="form-input" id="inputTel" placeholder="Ej: 1133252814" autocomplete="tel" inputmode="numeric" maxlength="15">
+      <div class="form-hint">Sin 0 ni 15. Solo números.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Servicio</label>
+      <div class="select-wrap">
+        <select class="form-select" id="selectServicio">
+          <option value="">Seleccioná un servicio</option>
+          <option value="Masaje Relajante">Masaje Relajante — 60 min</option>
+          <option value="Masaje Descontracturante">Masaje Descontracturante — 60 min</option>
+          <option value="Drenaje Linfático Manual">Drenaje Linfático Manual — 60 min</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="msg-error" id="errorDatos">Completá todos los campos para continuar.</div>
+    <button class="btn-primary" onclick="validarDatos()">Continuar</button>
+    <button class="btn-secondary" onclick="irPaso(1)">← Cambiar horario</button>
+  </div>
+
+  <!-- PASO 3: CONFIRMACIÓN -->
+  <div class="seccion" id="sec3">
+    <div class="sec-titulo">Confirmá tu reserva</div>
+    <div class="sec-sub">Revisá los datos antes de enviar</div>
+
+    <div class="resumen-card">
+      <div class="resumen-fila">
+        <span class="resumen-key">Día</span>
+        <span class="resumen-val" id="rFecha"></span>
+      </div>
+      <div class="resumen-fila">
+        <span class="resumen-key">Hora</span>
+        <span class="resumen-val" id="rHora"></span>
+      </div>
+      <div class="resumen-fila">
+        <span class="resumen-key">Servicio</span>
+        <span class="resumen-val" id="rServicio"></span>
+      </div>
+      <div class="resumen-fila">
+        <span class="resumen-key">Nombre</span>
+        <span class="resumen-val" id="rNombre"></span>
+      </div>
+      <div class="resumen-fila">
+        <span class="resumen-key">Teléfono</span>
+        <span class="resumen-val" id="rTel"></span>
+      </div>
+    </div>
+
+    <div class="msg-error" id="errorEnvio">Hubo un problema al enviar. Intentá de nuevo o escribinos por WhatsApp.</div>
+    <button class="btn-primary" id="btnEnviar" onclick="enviarTurno()">Confirmar reserva</button>
+    <button class="btn-secondary" onclick="irPaso(2)">← Editar datos</button>
+  </div>
+
+  <!-- PASO 4: ÉXITO -->
+  <div class="seccion" id="sec4">
+    <div class="estado-wrap">
+      <div class="estado-icono">🌊</div>
+      <div class="estado-titulo">¡Reserva <em>enviada</em>!</div>
+      <p class="estado-desc">Tu turno quedó registrado como pendiente. Diego te va a confirmar a la brevedad por WhatsApp.</p>
+      <a id="btnWaFinal" href="#" target="_blank" class="btn-wa-final">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Escribir a Diego por WhatsApp
+      </a>
+    </div>
+  </div>
+
+</div><!-- /contenido -->
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const API_URL = 'https://script.google.com/macros/s/AKfycbzea7eNSEmTKyweirmlqwSs6Ru-dxKDNndZKCKrIOZSdFWPXT0KCVkQxFMNA8YETU1W/exec';
+const WA_DIEGO = '5491133252814';
+
+// Horarios por día
+const HORARIOS = {
+  lunes:    ['16:00','17:30','19:00'],
+  martes:   ['16:00','17:30','19:00'],
+  miercoles:['16:00','17:30','19:00'],
+  jueves:   ['16:00','17:30','19:00'],
+  viernes:  ['16:00','17:30','19:00'],
+  sabado:   ['10:00','11:30','13:00','14:30','16:00','17:30']
+};
+
+const DIAS_NOMBRE = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+const DIAS_LABEL  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+// ── ESTADO ──────────────────────────────────────────────
+let semanaOffset = 0;
+let fechaSeleccionada = null;
+let horaSeleccionada  = null;
+let turnosOcupados    = [];
+
+// ── INIT ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  cargarTurnosOcupados();
+  renderSemana();
+});
+
+// Convierte cualquier formato de fecha del Sheet a DD/MM/YYYY
+function normalizarFechaSheet(raw) {
+  if (!raw) return '';
+  const s = raw.toString().trim();
+  // Ya está en DD/MM/YYYY
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  // Formato Date(año,mes,dia) que devuelve Apps Script serializado
+  const m = s.match(/Date\((\d+),(\d+),(\d+)\)/);
+  if (m) {
+    const dd = String(m[3]).padStart(2,'0');
+    const mm = String(parseInt(m[2])+1).padStart(2,'0');
+    return dd + '/' + mm + '/' + m[1];
+  }
+  // Intento parsear como fecha JS
+  try {
+    const d = new Date(s);
+    if (!isNaN(d)) {
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      return dd + '/' + mm + '/' + d.getFullYear();
+    }
+  } catch(e) {}
+  return s;
+}
+
+function cargarTurnosOcupados(callback) {
+  const cb = 'cb_' + Date.now();
+  window[cb] = function(data) {
+    if (data && data.turnos) {
+      // La API devuelve arrays de filas — col 0=fecha, 1=hora, 6=estado
+      const filas = data.turnos;
+      const esArray = Array.isArray(filas[0]);
+      turnosOcupados = filas
+        .slice(1) // saltar encabezado
+        .filter(fila => {
+          const estado = esArray ? (fila[6] || '') : (fila.estado || '');
+          return ['Pendiente','pendiente','Confirmado','confirmado','Realizado','realizado'].includes(estado.toString().trim());
+        })
+        .map(fila => ({
+          fecha: normalizarFechaSheet(esArray ? fila[0] : fila.fecha),
+          hora:  (esArray ? fila[1] : fila.hora || '').toString().replace(' hs','').replace('hs','').trim()
+        }));
+    }
+    console.log('Turnos ocupados:', turnosOcupados.slice(0,5));
+    delete window[cb];
+    if (callback) callback();
+  };
+  const s = document.createElement('script');
+  s.src = API_URL + '?callback=' + cb + '&_t=' + Date.now();
+  document.head.appendChild(s);
+}
+
+function estaOcupado(fechaStr, hora) {
+  const horaLimpia = hora.replace(' hs','').replace('hs','').trim();
+  return turnosOcupados.some(t => t.fecha === fechaStr && t.hora === horaLimpia);
+}
+
+// ── SEMANA ──────────────────────────────────────────────
+function getLunes(offset) {
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  const dia = hoy.getDay(); // 0=dom
+  const diff = dia === 0 ? -6 : 1 - dia;
+  const lunes = new Date(hoy);
+  lunes.setDate(hoy.getDate() + diff + offset * 7);
+  return lunes;
+}
+
+function renderSemana() {
+  const lunes = getLunes(semanaOffset);
+  const sabado = new Date(lunes); sabado.setDate(lunes.getDate() + 5);
+  document.getElementById('labelSemana').textContent =
+    lunes.getDate() + ' ' + MESES[lunes.getMonth()] + ' — ' +
+    sabado.getDate() + ' ' + MESES[sabado.getMonth()];
+
+  document.getElementById('btnSemanaAnterior').disabled = semanaOffset <= 0;
+
+  const grid = document.getElementById('diasGrid');
+  grid.innerHTML = '';
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+
+  for (let i = 0; i < 6; i++) { // lun a sab
+    const fecha = new Date(lunes);
+    fecha.setDate(lunes.getDate() + i);
+    const diaSemana = DIAS_NOMBRE[fecha.getDay()];
+    const horariosDia = HORARIOS[diaSemana];
+    if (!horariosDia) continue;
+
+    const pasado = fecha < hoy;
+    const btn = document.createElement('button');
+    btn.className = 'dia-btn';
+    btn.disabled = pasado;
+    btn.innerHTML = `<span class="dia-nombre">${DIAS_LABEL[fecha.getDay()]}</span><span class="dia-num">${fecha.getDate()}</span>`;
+
+    const fechaStr = formatFecha(fecha);
+    if (fechaSeleccionada === fechaStr) btn.classList.add('seleccionado');
+
+    btn.onclick = () => seleccionarDia(fecha, btn);
+    grid.appendChild(btn);
+  }
+
+  if (fechaSeleccionada) renderHorarios(fechaSeleccionada);
+}
+
+function cambiarSemana(dir) {
+  semanaOffset += dir;
+  fechaSeleccionada = null;
+  horaSeleccionada = null;
+  document.getElementById('horariosWrap').style.display = 'none';
+  document.getElementById('btnPaso1').disabled = true;
+  renderSemana();
+}
+
+function seleccionarDia(fecha, btn) {
+  document.querySelectorAll('.dia-btn').forEach(b => b.classList.remove('seleccionado'));
+  btn.classList.add('seleccionado');
+  fechaSeleccionada = formatFecha(fecha);
+  horaSeleccionada = null;
+  document.getElementById('btnPaso1').disabled = true;
+  // Recarga turnos frescos antes de mostrar horarios
+  cargarTurnosOcupados(() => renderHorarios(fechaSeleccionada));
+}
+
+function renderHorarios(fechaStr) {
+  const wrap = document.getElementById('horariosWrap');
+  const grid = document.getElementById('horariosGrid');
+  wrap.style.display = 'block';
+  grid.innerHTML = '';
+
+  const fecha = parseFecha(fechaStr);
+  const diaSemana = DIAS_NOMBRE[fecha.getDay()];
+  const horarios = HORARIOS[diaSemana] || [];
+
+  horarios.forEach(hora => {
+    const ocupado = estaOcupado(fechaStr, hora);
+    const btn = document.createElement('button');
+    btn.className = 'hora-btn' + (ocupado ? ' ocupado' : '');
+    btn.textContent = hora;
+    btn.disabled = ocupado;
+    if (horaSeleccionada === hora) btn.classList.add('seleccionado');
+    btn.onclick = () => seleccionarHora(hora, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function seleccionarHora(hora, btn) {
+  document.querySelectorAll('.hora-btn').forEach(b => b.classList.remove('seleccionado'));
+  btn.classList.add('seleccionado');
+  horaSeleccionada = hora;
+  document.getElementById('btnPaso1').disabled = false;
+}
+
+// ── NAVEGACIÓN ──────────────────────────────────────────
+function irPaso(n) {
+  document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+  document.getElementById('sec' + n).classList.add('activa');
+  actualizarStepper(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 3) rellenarResumen();
+  if (n === 1) {
+    cargarTurnosOcupados(() => {
+      if (fechaSeleccionada) renderHorarios(fechaSeleccionada);
+    });
+  }
+}
+
+function actualizarStepper(paso) {
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('step' + i);
+    el.classList.remove('activo', 'completo');
+    if (i < paso) el.classList.add('completo');
+    if (i === paso) el.classList.add('activo');
+  }
+}
+
+function validarDatos() {
+  const nombre = document.getElementById('inputNombre').value.trim();
+  const tel = document.getElementById('inputTel').value.trim();
+  const servicio = document.getElementById('selectServicio').value;
+  const err = document.getElementById('errorDatos');
+
+  if (!nombre || !tel || !servicio) {
+    err.classList.add('visible');
+    return;
+  }
+  if (!/^\d{8,13}$/.test(tel)) {
+    err.textContent = 'El teléfono debe tener entre 8 y 13 dígitos, solo números.';
+    err.classList.add('visible');
+    return;
+  }
+  err.classList.remove('visible');
+  irPaso(3);
+}
+
+function rellenarResumen() {
+  const fecha = parseFecha(fechaSeleccionada);
+  document.getElementById('rFecha').textContent =
+    DIAS_LABEL[fecha.getDay()] + ' ' + fecha.getDate() + ' de ' + MESES[fecha.getMonth()];
+  document.getElementById('rHora').textContent = horaSeleccionada;
+  document.getElementById('rServicio').textContent = document.getElementById('selectServicio').value;
+  document.getElementById('rNombre').textContent = document.getElementById('inputNombre').value.trim();
+  document.getElementById('rTel').textContent = document.getElementById('inputTel').value.trim();
+}
+
+// ── ENVÍO ────────────────────────────────────────────────
+function enviarTurno() {
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  const nombre   = document.getElementById('inputNombre').value.trim();
+  const tel      = document.getElementById('inputTel').value.trim();
+  const servicio = document.getElementById('selectServicio').value;
+
+  const params = new URLSearchParams({
+    accion:   'nuevo_turno',
+    fecha:    fechaSeleccionada,
+    hora:     horaSeleccionada,
+    cliente:  nombre,
+    servicio: servicio,
+    telefono: tel,
+    estado:   'Pendiente',
+    medio:    '',
+    monto:    '',
+    mensaje:  'Reserva web pública',
+    callback: 'cbEnvio'
+  });
+
+  window.cbEnvio = function(resp) {
+    delete window.cbEnvio;
+    if (resp && (resp.status === 'ok' || resp.resultado === 'ok')) {
+      const msg = encodeURIComponent(
+        `Hola Diego! Acabo de reservar un turno:\n📅 ${fechaSeleccionada} a las ${horaSeleccionada}\n💆 ${servicio}\n👤 ${nombre}`
+      );
+      document.getElementById('btnWaFinal').href = `https://wa.me/${WA_DIEGO}?text=${msg}`;
+      irPaso(4);
+    } else {
+      mostrarErrorEnvio();
+    }
+  };
+
+  const s = document.createElement('script');
+  s.src = API_URL + '?' + params.toString();
+  s.onerror = mostrarErrorEnvio;
+  document.head.appendChild(s);
+
+  setTimeout(() => {
+    if (window.cbEnvio) { delete window.cbEnvio; mostrarErrorEnvio(); }
+  }, 12000);
+}
+
+function mostrarErrorEnvio() {
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = false;
+  btn.textContent = 'Confirmar reserva';
+  document.getElementById('errorEnvio').classList.add('visible');
+}
+
+// ── UTILS ────────────────────────────────────────────────
+function formatFecha(d) {
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  return `${dd}/${mm}/${d.getFullYear()}`;
+}
+
+function parseFecha(str) {
+  const [dd,mm,yyyy] = str.split('/');
+  return new Date(parseInt(yyyy), parseInt(mm)-1, parseInt(dd));
+}
+</script>
+</body>
+</html>
