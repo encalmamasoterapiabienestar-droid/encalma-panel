@@ -149,13 +149,11 @@ header {
 </div>
 
 
+
 <!-- MÚSICA ZEN -->
-<div id="zenMusic" style="position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;">
-  <iframe id="zenFrame"
-    src="https://www.youtube-nocookie.com/embed/videoseries?list=PLlMiZFuoRxTY8rnpMCHijCJm6S_zZ6OaP&autoplay=0&controls=0&mute=0&loop=1"
-    allow="autoplay"
-    frameborder="0"></iframe>
-</div>
+<audio id="zenAudio" loop preload="none"
+  src="https://cdn.pixabay.com/audio/2022/03/10/audio_1e42b4fb28.mp3">
+</audio>
 
 <header>
   <div>
@@ -293,21 +291,23 @@ header {
 
 <script>
 
-  // MÚSICA ZEN — arranca al primer scroll
+
+  // MÚSICA ZEN — arranca al primer scroll o toque
   (function() {
-    var musicStarted = false;
+    var started = false;
     function startMusic() {
-      if (musicStarted) return;
-      var frame = document.getElementById('zenFrame');
-      if (!frame) return;
-      frame.src = frame.src.replace('autoplay=0', 'autoplay=1');
-      musicStarted = true;
+      if (started) return;
+      var audio = document.getElementById('zenAudio');
+      if (!audio) return;
+      audio.volume = 0.35;
+      var p = audio.play();
+      if (p !== undefined) {
+        p.then(function() { started = true; })
+         .catch(function() {});
+      } else {
+        started = true;
+      }
     }
-    // Intentar al cargar (desktop)
-    window.addEventListener('load', function() {
-      setTimeout(function() { if (!musicStarted) startMusic(); }, 1000);
-    });
-    // Intentar al primer scroll (mobile y browsers restrictivos)
     window.addEventListener('scroll', function onScroll() {
       startMusic();
       window.removeEventListener('scroll', onScroll);
@@ -315,6 +315,10 @@ header {
     window.addEventListener('touchstart', function onTouch() {
       startMusic();
       window.removeEventListener('touchstart', onTouch);
+    }, { passive: true });
+    window.addEventListener('click', function onClick() {
+      startMusic();
+      window.removeEventListener('click', onClick);
     }, { passive: true });
   })();
 
