@@ -148,6 +148,15 @@ header {
   </a>
 </div>
 
+
+<!-- MÚSICA ZEN -->
+<div id="zenMusic" style="position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;">
+  <iframe id="zenFrame"
+    src="https://www.youtube-nocookie.com/embed/videoseries?list=PLlMiZFuoRxTY8rnpMCHijCJm6S_zZ6OaP&autoplay=0&controls=0&mute=0&loop=1"
+    allow="autoplay"
+    frameborder="0"></iframe>
+</div>
+
 <header>
   <div>
     <a href="index.html" class="logo-nombre">En Calma</a>
@@ -283,6 +292,32 @@ header {
 </div><!-- /contenido -->
 
 <script>
+
+  // MÚSICA ZEN — arranca al primer scroll
+  (function() {
+    var musicStarted = false;
+    function startMusic() {
+      if (musicStarted) return;
+      var frame = document.getElementById('zenFrame');
+      if (!frame) return;
+      frame.src = frame.src.replace('autoplay=0', 'autoplay=1');
+      musicStarted = true;
+    }
+    // Intentar al cargar (desktop)
+    window.addEventListener('load', function() {
+      setTimeout(function() { if (!musicStarted) startMusic(); }, 1000);
+    });
+    // Intentar al primer scroll (mobile y browsers restrictivos)
+    window.addEventListener('scroll', function onScroll() {
+      startMusic();
+      window.removeEventListener('scroll', onScroll);
+    }, { passive: true });
+    window.addEventListener('touchstart', function onTouch() {
+      startMusic();
+      window.removeEventListener('touchstart', onTouch);
+    }, { passive: true });
+  })();
+
   // VERIFICACION LICENCIA DRL
   (function(){
     var CONTROL_URL = "https://script.google.com/macros/s/AKfycbwlM0gexbjIQTshIgWYG2Gy2t49P-M3WrOlpv6HJ7tuDj4XMskvCFfAuz8Iz86Ri9M3Tg/exec";
