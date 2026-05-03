@@ -877,6 +877,16 @@ function cargarTurnosOcupados(callback) {
           hora:  (esArray ? fila[1] : fila.hora || '').toString().replace(' hs','').replace('hs','').trim()
         }));
     }
+    // DEBUG VISIBLE EN PANTALLA
+    var dbg = document.getElementById('debug-log');
+    if (!dbg) {
+      dbg = document.createElement('div');
+      dbg.id = 'debug-log';
+      dbg.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.85);color:#0f0;font-size:10px;padding:8px;z-index:99999;max-height:40vh;overflow:auto;font-family:monospace;';
+      document.body.appendChild(dbg);
+    }
+    var raw = data.turnos.slice(1,4).map(function(f){ return JSON.stringify([f[0],f[1],f[6]]); }).join('<br>');
+    dbg.innerHTML = '<b>RAW fechas Sheet:</b><br>' + raw + '<br><b>Ocupados:</b><br>' + turnosOcupados.slice(0,3).map(function(t){ return JSON.stringify(t); }).join('<br>');
     console.log('Turnos ocupados:', turnosOcupados.slice(0,5));
     delete window[cb];
     if (callback) callback();
