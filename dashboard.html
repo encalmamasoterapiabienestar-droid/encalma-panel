@@ -565,7 +565,7 @@ function verificarPass(){
     const ov=document.getElementById("loginOverlay");
     ov.classList.add("ocultar");
     sessionStorage.setItem("encalma_auth","1");
-    setTimeout(function(){ov.style.display="none";ir("portada");},600);
+    setTimeout(function(){ov.style.display="none";ir("dashboard");},600);
   } else {
     err.textContent="Contrasena incorrecta";
     inp.classList.add("error");inp.value="";
