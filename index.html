@@ -1128,10 +1128,19 @@ function mostrarReservas() {
   document.getElementById('seccion-landing').style.display = 'none';
   document.getElementById('seccion-reservas').style.display = 'block';
   window.scrollTo(0, 0);
-  // Inicializar grilla al abrir
+
+  // DEBUG
+  var dbg = document.createElement('div');
+  dbg.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#000;color:#0f0;font-size:11px;padding:6px;z-index:99999;font-family:monospace;';
+  dbg.id = 'debug-box';
+  dbg.innerHTML = 'Abriendo reservas... llamando API';
+  document.body.appendChild(dbg);
+
   if (typeof renderSemana === 'function') renderSemana();
   if (typeof cargarTurnosOcupados === 'function') {
     cargarTurnosOcupados(() => {
+      var d = document.getElementById('debug-box');
+      if (d) d.innerHTML = 'API OK — ocupados: ' + JSON.stringify(turnosOcupados.slice(0,2));
       if (typeof renderSemana === 'function') renderSemana();
     });
   }
