@@ -288,25 +288,15 @@ header {
 <body>
 
 <!-- AUDIO AMBIENTE -->
-<audio id="bg-audio" loop preload="auto" muted>
-  <source src="zen.mp3" type="audio/mpeg">
-</audio>
-<button id="audio-btn" title="Activar música" style="
-  position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;
-  background:rgba(36,77,90,0.85);border:1px solid rgba(111,163,180,0.35);
+<audio id="bg-audio" loop preload="auto" src="zen.mp3"></audio>
+<button id="audio-btn" onclick="toggleAudio()" title="Música zen" style="
+  position:fixed;bottom:24px;right:24px;width:44px;height:44px;border-radius:50%;
+  background:rgba(36,77,90,0.9);border:1.5px solid rgba(111,163,180,0.4);
   color:#a8d0dc;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  z-index:9998;backdrop-filter:blur(8px);transition:all .4s;opacity:0.8;">
-  <svg id="audio-icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <polygon points="5 3 19 12 5 21 5 3"/>
-  </svg>
-  <svg id="audio-icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:none">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-  </svg>
-  <svg id="audio-icon-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:none">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-    <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-  </svg>
+  z-index:9998;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(36,77,90,0.3);">
+  <svg id="ico-play" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+  <svg id="ico-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+  <svg id="ico-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
 </button>
 
 <!-- SUSPENSION OVERLAY -->
@@ -634,52 +624,34 @@ header {
 
 <script>
 // ── AUDIO ──────────────────────────────────────────────
-(function() {
+var _audioStarted = false;
+var _audioMuted = false;
+function toggleAudio() {
   var audio = document.getElementById('bg-audio');
-  var audioBtn = document.getElementById('audio-btn');
-  var iconOn = document.getElementById('audio-icon-on');
-  var iconOff = document.getElementById('audio-icon-off');
-  var iconPlay = document.getElementById('audio-icon-play');
-  var unmuted = false;
-
-  // Autoplay muteado — siempre funciona
-  audio.muted = true;
-  audio.volume = 0.35;
-  audio.play().catch(function(){});
-
-  // Botón: desmutear con fade
-  audioBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    if (!unmuted) {
-      // Primera vez: desmutear con fade
-      unmuted = true;
-      audio.muted = false;
-      audio.volume = 0;
-      var fade = setInterval(function() {
-        audio.volume = Math.min(audio.volume + 0.02, 0.35);
-        if (audio.volume >= 0.35) clearInterval(fade);
-      }, 80);
-      if (iconPlay) iconPlay.style.display = 'none';
-      if (iconOn) iconOn.style.display = 'block';
-      if (iconOff) iconOff.style.display = 'none';
-      audioBtn.title = 'Silenciar música';
-    } else {
-      // Toggle mute
-      var isMuted = audio.volume === 0;
-      if (isMuted) {
-        audio.volume = 0.35;
-        if (iconOn) iconOn.style.display = 'block';
-        if (iconOff) iconOff.style.display = 'none';
-        audioBtn.title = 'Silenciar música';
-      } else {
-        audio.volume = 0;
-        if (iconOn) iconOn.style.display = 'none';
-        if (iconOff) iconOff.style.display = 'block';
-        audioBtn.title = 'Activar música';
-      }
-    }
-  });
-})();
+  var icoPlay = document.getElementById('ico-play');
+  var icoOn = document.getElementById('ico-on');
+  var icoOff = document.getElementById('ico-off');
+  if (!_audioStarted) {
+    // Primer click: arrancar
+    audio.volume = 0;
+    audio.play().then(function() {
+      _audioStarted = true;
+      icoPlay.style.display = 'none';
+      icoOn.style.display = 'block';
+      // Fade in
+      var t = setInterval(function() {
+        audio.volume = Math.min(audio.volume + 0.025, 0.35);
+        if (audio.volume >= 0.35) clearInterval(t);
+      }, 60);
+    }).catch(function(e) { console.log('audio:', e); });
+    return;
+  }
+  // Toggle mute
+  _audioMuted = !_audioMuted;
+  audio.volume = _audioMuted ? 0 : 0.35;
+  icoOn.style.display = _audioMuted ? 'none' : 'block';
+  icoOff.style.display = _audioMuted ? 'block' : 'none';
+}
 
 // ── DRL ────────────────────────────────────────────────
 // VERIFICACION LICENCIA DRL
@@ -844,7 +816,7 @@ let turnosOcupados    = [];
 // ── INIT ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   cargarTurnosOcupados();
-  renderSemana();
+  // renderSemana se llama cuando el usuario abre la sección
 });
 
 // Convierte cualquier formato de fecha del Sheet a DD/MM/YYYY
@@ -945,6 +917,10 @@ function renderSemana() {
     if (fechaSeleccionada === fechaStr) btn.classList.add('seleccionado');
 
     btn.onclick = () => seleccionarDia(fecha, btn);
+    btn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      seleccionarDia(fecha, btn);
+    }, { passive: false });
     grid.appendChild(btn);
   }
 
@@ -966,7 +942,9 @@ function seleccionarDia(fecha, btn) {
   fechaSeleccionada = formatFecha(fecha);
   horaSeleccionada = null;
   document.getElementById('btnPaso1').disabled = true;
-  // Recarga turnos frescos antes de mostrar horarios
+  // Mostrar horarios YA con los datos que tenemos
+  renderHorarios(fechaSeleccionada);
+  // Actualizar ocupados en background
   cargarTurnosOcupados(() => renderHorarios(fechaSeleccionada));
 }
 
@@ -1125,6 +1103,8 @@ function mostrarReservas() {
   document.getElementById('seccion-landing').style.display = 'none';
   document.getElementById('seccion-reservas').style.display = 'block';
   window.scrollTo(0, 0);
+  // Inicializar grilla al abrir
+  if (typeof renderSemana === 'function') renderSemana();
   if (typeof cargarTurnosOcupados === 'function') {
     cargarTurnosOcupados(() => {
       if (typeof renderSemana === 'function') renderSemana();
