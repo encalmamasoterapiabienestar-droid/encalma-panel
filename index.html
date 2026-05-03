@@ -434,11 +434,27 @@ header {
       <div class="footer-copy">Masoterapia & Bienestar</div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:12px;">
-    <span class="footer-copy">Desarrollado por Diego Vázquez · DRL Sistema de Gestión · © 2026</span>
-    <img src="DRL-LOGO_FINAL.png" alt="DRL Sistema de Gestión" style="width:36px;height:36px;border-radius:50%;object-fit:cover;opacity:0.75;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="footer-copy">© 2026 · Desarrollado por Diego Vázquez</span>
+    <img src="DRL-LOGO_FINAL.png" alt="DRL Sistema de Gestión" style="width:32px;height:32px;border-radius:50%;object-fit:cover;opacity:0.75;">
+    <span class="footer-copy">DRL · Sistema de Gestión</span>
   </div>
 </footer>
+
+<style>
+@media (max-width: 600px) {
+  footer {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    padding: 1.5rem 1.5rem;
+  }
+  footer > div {
+    justify-content: center;
+  }
+}
+</style>
 
 <!-- MODAL QR -->
 <div class="modal-overlay" id="modalQR">
