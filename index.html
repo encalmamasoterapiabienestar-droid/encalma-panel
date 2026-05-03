@@ -288,14 +288,14 @@ header {
 <body>
 
 <!-- AUDIO AMBIENTE -->
-<audio id="bg-audio" loop preload="auto">
+<audio id="bg-audio" loop preload="auto" muted>
   <source src="zen.mp3" type="audio/mpeg">
 </audio>
-<button id="audio-btn" title="Música" style="
+<button id="audio-btn" title="Activar música" style="
   position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;
   background:rgba(36,77,90,0.85);border:1px solid rgba(111,163,180,0.35);
   color:#a8d0dc;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  z-index:9998;backdrop-filter:blur(8px);transition:opacity .4s;opacity:0;">
+  z-index:9998;backdrop-filter:blur(8px);transition:all .4s;opacity:0.8;">
   <svg id="audio-icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
     <polygon points="5 3 19 12 5 21 5 3"/>
   </svg>
@@ -639,51 +639,45 @@ header {
   var audioBtn = document.getElementById('audio-btn');
   var iconOn = document.getElementById('audio-icon-on');
   var iconOff = document.getElementById('audio-icon-off');
-  var audioStarted = false;
-  var muted = false;
-  audio.volume = 0;
-  // Botón visible desde el inicio
-  audioBtn.style.opacity = '0.7';
-  // Icono de play mientras no arrancó
-  iconOn.style.display = 'none';
-  iconOff.style.display = 'none';
+  var iconPlay = document.getElementById('audio-icon-play');
+  var unmuted = false;
 
-  function startAudio() {
-    if (audioStarted) return;
-    audioStarted = true;
-    audio.volume = 0;
-    audio.play().then(function() {
-      var vol = 0;
-      var fade = setInterval(function() {
-        vol = Math.min(vol + 0.02, 0.35);
-        audio.volume = vol;
-        if (vol >= 0.35) clearInterval(fade);
-      }, 80);
-      audioBtn.style.opacity = '1';
-      document.getElementById('audio-icon-play').style.display = 'none';
-      iconOn.style.display = 'block';
-      iconOff.style.display = 'none';
-    }).catch(function(){
-      // Si falla, mostrar igualmente el botón
-      audioBtn.style.opacity = '0.7';
-    });
-  }
+  // Autoplay muteado — siempre funciona
+  audio.muted = true;
+  audio.volume = 0.35;
+  audio.play().catch(function(){});
 
-  // Intentar al primer scroll/toque de página
-  document.addEventListener('scroll', startAudio, { once: true, passive: true });
-  document.addEventListener('touchstart', startAudio, { once: true, passive: true });
-
-  // Click en el botón arranca o mutea
+  // Botón: desmutear con fade
   audioBtn.addEventListener('click', function(e) {
     e.stopPropagation();
-    if (!audioStarted) {
-      startAudio();
-      return;
+    if (!unmuted) {
+      // Primera vez: desmutear con fade
+      unmuted = true;
+      audio.muted = false;
+      audio.volume = 0;
+      var fade = setInterval(function() {
+        audio.volume = Math.min(audio.volume + 0.02, 0.35);
+        if (audio.volume >= 0.35) clearInterval(fade);
+      }, 80);
+      if (iconPlay) iconPlay.style.display = 'none';
+      if (iconOn) iconOn.style.display = 'block';
+      if (iconOff) iconOff.style.display = 'none';
+      audioBtn.title = 'Silenciar música';
+    } else {
+      // Toggle mute
+      var isMuted = audio.volume === 0;
+      if (isMuted) {
+        audio.volume = 0.35;
+        if (iconOn) iconOn.style.display = 'block';
+        if (iconOff) iconOff.style.display = 'none';
+        audioBtn.title = 'Silenciar música';
+      } else {
+        audio.volume = 0;
+        if (iconOn) iconOn.style.display = 'none';
+        if (iconOff) iconOff.style.display = 'block';
+        audioBtn.title = 'Activar música';
+      }
     }
-    muted = !muted;
-    audio.volume = muted ? 0 : 0.35;
-    iconOn.style.display = muted ? 'none' : 'block';
-    iconOff.style.display = muted ? 'block' : 'none';
   });
 })();
 
