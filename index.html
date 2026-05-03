@@ -859,40 +859,54 @@ function normalizarFechaSheet(raw) {
   return s;
 }
 
+function procesarTurnos(data) {
+  if (data && data.turnos) {
+    const filas = data.turnos;
+    const esArray = Array.isArray(filas[0]);
+    turnosOcupados = filas
+      .slice(1)
+      .filter(fila => {
+        const estado = esArray ? (fila[6] || '') : (fila.estado || '');
+        return ['Pendiente','pendiente','Confirmado','confirmado','Realizado','realizado'].includes(estado.toString().trim());
+      })
+      .map(fila => ({
+        fecha: normalizarFechaSheet(esArray ? fila[0] : fila.fecha),
+        hora:  (esArray ? fila[1] : fila.hora || '').toString().replace(' hs','').replace('hs','').trim()
+      }));
+  }
+}
+
 function cargarTurnosOcupados(callback) {
+  const url = API_URL + '?_t=' + Date.now();
+  if (window.fetch) {
+    // fetch — funciona en mobile y compu
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        procesarTurnos(data);
+        var dbg = document.getElementById('debug-box');
+        if (dbg) dbg.innerHTML = 'API OK — ocupados: ' + turnosOcupados.length + ' — ' + JSON.stringify(turnosOcupados.slice(0,2));
+        if (callback) callback();
+      })
+      .catch(function() {
+        // fallback JSONP
+        cargarTurnosJSONP(callback);
+      });
+  } else {
+    cargarTurnosJSONP(callback);
+  }
+}
+
+function cargarTurnosJSONP(callback) {
   const cb = 'cb_' + Date.now();
   window[cb] = function(data) {
-    if (data && data.turnos) {
-      // La API devuelve arrays de filas — col 0=fecha, 1=hora, 6=estado
-      const filas = data.turnos;
-      const esArray = Array.isArray(filas[0]);
-      turnosOcupados = filas
-        .slice(1) // saltar encabezado
-        .filter(fila => {
-          const estado = esArray ? (fila[6] || '') : (fila.estado || '');
-          return ['Pendiente','pendiente','Confirmado','confirmado','Realizado','realizado'].includes(estado.toString().trim());
-        })
-        .map(fila => ({
-          fecha: normalizarFechaSheet(esArray ? fila[0] : fila.fecha),
-          hora:  (esArray ? fila[1] : fila.hora || '').toString().replace(' hs','').replace('hs','').trim()
-        }));
-    }
-    // DEBUG VISIBLE EN PANTALLA
-    var dbg = document.getElementById('debug-log');
-    if (!dbg) {
-      dbg = document.createElement('div');
-      dbg.id = 'debug-log';
-      dbg.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.85);color:#0f0;font-size:10px;padding:8px;z-index:99999;max-height:40vh;overflow:auto;font-family:monospace;';
-      document.body.appendChild(dbg);
-    }
-    var raw = data.turnos.slice(1,4).map(function(f){ return JSON.stringify([f[0],f[1],f[6]]); }).join('<br>');
-    dbg.innerHTML = '<b>RAW fechas Sheet:</b><br>' + raw + '<br><b>Ocupados:</b><br>' + turnosOcupados.slice(0,3).map(function(t){ return JSON.stringify(t); }).join('<br>');
-    console.log('Turnos ocupados:', turnosOcupados.slice(0,5));
+    procesarTurnos(data);
     delete window[cb];
     if (callback) callback();
   };
   const s = document.createElement('script');
   s.src = API_URL + '?callback=' + cb + '&_t=' + Date.now();
+  s.onerror = function() { delete window[cb]; if (callback) callback(); };
   document.head.appendChild(s);
 }
 
