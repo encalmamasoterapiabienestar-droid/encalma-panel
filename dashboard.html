@@ -299,7 +299,7 @@ body::before{content:"";position:fixed;inset:0;
     }
   };
   var s = document.createElement("script");
-  s.src = CONTROL_URL + "?callback=" + cbName + "&dominio=" + encodeURIComponent(DOMINIO);
+  s.src = CONTROL_URL + "?callback=" + cbName + "&dominio=" + encodeURIComponent(DOMINIO) + "&token=DRL194749";
   s.onerror = function() { delete window[cbName]; }; // Si falla, deja pasar
   document.head.appendChild(s);
 })();
