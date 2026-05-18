@@ -251,12 +251,25 @@ function cargarGrilla(){
   else if(dow>=1&&dow<=5) horarios=["17:30","19:00"]; // lun, mar, mié, vie
   else if(dow===6) horarios=["13:00","14:30","16:00","17:30"]; // sábado
   var ocupados=new Set();
+  var dd=String(fecha.getDate()).padStart(2,"0");
+  var mm=String(fecha.getMonth()+1).padStart(2,"0");
+  var yyyy=fecha.getFullYear();
+  var fechaStr=dd+"/"+mm+"/"+yyyy;
   if(datosAPI&&datosAPI.turnos){
     datosAPI.turnos.slice(1).forEach(function(t){
       if(!t[0]) return;
       try{
-        var ft=new Date(t[0]); var fa=new Date(ft.getTime()+3*60*60*1000);
-        if(fa.getFullYear()===fecha.getFullYear()&&fa.getMonth()===fecha.getMonth()&&fa.getDate()===fecha.getDate()){
+        var raw=String(t[0]).trim();
+        var fechaTurno="";
+        if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(raw)){
+          var p=raw.split("/");
+          fechaTurno=p[0].padStart(2,"0")+"/"+p[1].padStart(2,"0")+"/"+p[2];
+        } else {
+          var iso=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+          if(iso) fechaTurno=iso[3]+"/"+iso[2]+"/"+iso[1];
+          else { var d=new Date(raw); if(!isNaN(d)){ fechaTurno=String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear(); } }
+        }
+        if(fechaTurno===fechaStr){
           var est=(t[6]||"").toString().trim().toUpperCase();
           if(est!=="CANCELADO"){ var hs=String(t[1]||"").replace(" hs","").trim(); if(hs) ocupados.add(hs); }
         }
