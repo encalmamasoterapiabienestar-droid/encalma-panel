@@ -247,8 +247,9 @@ function cargarGrilla(){
   var dow=fecha.getDay();
   var horarios=[];
   if(dow===0){ gt.innerHTML="<span style=font-size:12px;color:var(--warm-gray-light);font-style:italic>Sin turnos los domingos</span>"; gt.style.display="flex"; sd.style.display="none"; return; }
-  if(dow>=1&&dow<=5) horarios=["16:00","17:30","19:30"];
-  else if(dow===6) horarios=["10:00","11:30","13:00","14:30","16:00","17:30"];
+  if(dow===4) horarios=["15:00","16:30","18:00","19:30"]; // jueves
+  else if(dow>=1&&dow<=5) horarios=["17:30","19:00"]; // lun, mar, mié, vie
+  else if(dow===6) horarios=["13:00","14:30","16:00","17:30"]; // sábado
   var ocupados=new Set();
   if(datosAPI&&datosAPI.turnos){
     datosAPI.turnos.slice(1).forEach(function(t){
