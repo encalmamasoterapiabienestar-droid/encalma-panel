@@ -51,20 +51,21 @@ header{position:relative;z-index:10;background:rgba(245,240,232,0.93);backdrop-f
   position:absolute;inset:0;
   width:100%;height:100%;object-fit:cover;display:block;
 }
-/* Valores centrados verticalmente con transform */
 .gc-val{
   position:absolute;
   font-family:"Jost",sans-serif;
   font-size:clamp(10px,2.2vw,13px);
   color:#3a3530;
-  width:34%;
+  /* desde el punto marcado hasta el borde derecho del campo (~87%) */
+  width:45%;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  /* centrado vertical exacto sobre el punto */
   transform:translateY(-50%);
 }
-#ov-para    { top:41.6%; left:53.3%; }
-#ov-de      { top:49.8%; left:53.8%; }
-#ov-codigo  { top:57.6%; left:54.3%; }
-#ov-validez { top:65.3%; left:54.1%; }
+#ov-para    { top:41.1%; left:42.6%; }
+#ov-de      { top:49.6%; left:42.6%; }
+#ov-codigo  { top:57.3%; left:42.8%; }
+#ov-validez { top:64.6%; left:42.8%; }
 
 .gc-card-actions{margin-top:16px;display:flex;justify-content:center;}
 .btn-descargar{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--sage-dark),var(--sage));color:white;font-weight:500;font-size:12px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;font-family:"Jost",sans-serif;padding:14px 28px;border-radius:12px;box-shadow:0 4px 16px rgba(90,122,94,0.35);transition:opacity .2s;}
