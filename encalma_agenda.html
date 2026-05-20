@@ -231,6 +231,7 @@ function renderSemana(){
       <div class="modal-field"><span>Servicio</span><span id="mServicio">-</span></div>
       <div class="modal-field"><span>Monto</span><span id="mMonto">-</span></div>
       <div class="modal-field"><span>Estado</span><span id="mEstadoBadge"></span></div>
+      <div class="modal-field" id="mObsRow" style="display:none"><span>Obs</span><span id="mObsVer" style="color:var(--warm-gray);font-style:italic;"></span></div>
     </div>
     <div class="modal-divider"></div>
     <div class="modal-btns" id="mBtns"></div>
@@ -261,6 +262,11 @@ function abrirModal(t){
   document.getElementById("mServicio").textContent = t[3]||"-";
   document.getElementById("mMonto").textContent = fmtMonto(t[8]);
   document.getElementById("mObsInput").value = t[16]||"";
+  var obsVer = t[16]||"";
+  var obsRow = document.getElementById("mObsRow");
+  var obsVerEl = document.getElementById("mObsVer");
+  if(obsVer){ obsVerEl.textContent=obsVer; obsRow.style.display="flex"; }
+  else { obsRow.style.display="none"; }
   document.getElementById("mToast").style.display = "none";
 
   var badge = document.getElementById("mEstadoBadge");
@@ -336,7 +342,13 @@ function guardarObsModal(){
   var cb="cbObs_"+Date.now();
   window[cb]=function(data){
     delete window[cb];
-    if(data&&data.ok){ t[16]=obs; mostrarToastModal("\u2713 Observación guardada"); }
+    if(data&&data.ok){
+      t[16]=obs;
+      var or=document.getElementById("mObsRow");
+      var ov=document.getElementById("mObsVer");
+      if(obs){ov.textContent=obs;or.style.display="flex";}else{or.style.display="none";}
+      mostrarToastModal("\u2713 Observación guardada");
+    }
     else { mostrarToastModal("\u26A0 Error al guardar"); }
   };
   var s=document.createElement("script");
