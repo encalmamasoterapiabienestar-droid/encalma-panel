@@ -868,11 +868,11 @@ function mostrarFicha(){
   if(c[8]){badge2.innerHTML="<span class='ficha-badge fb-ok'>Ficha Completa</span>";}
   else{badge2.innerHTML="<span class='ficha-badge fb-no'>Ficha Incompleta</span>";}
   const meses=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-  const hist=turnos.slice(1).filter(function(t){return norm(t[2])===norm(nombre)&&norm(t[6]).includes("realizado");}).sort(function(a,b){return new Date(a[0])-new Date(b[0]);});
+  const hist=turnos.slice(1).filter(function(t){var e=norm(t[6]);return norm(t[2])===norm(nombre)&&(e.includes("realizado")||e.includes("confirmado"));}).sort(function(a,b){return new Date(a[0])-new Date(b[0]);});
   document.getElementById("fichaTotal").textContent=hist.length+" sesiones registradas";
   const lista=document.getElementById("fichaHistorial");
   if(hist.length===0){lista.innerHTML="<div class='empty-msg'>Sin sesiones registradas</div>";}
-  else{lista.innerHTML=hist.map(function(t){const d=new Date(t[0]);const fs=!isNaN(d)?d.getDate()+" "+meses[d.getMonth()]:String(t[0]).slice(0,8);return "<div class='hist-row'><div class='hist-fecha'>"+fs+"</div><div><div class='hist-srv'>"+(t[3]||"-")+"</div><div class='hist-obs'>"+(t[15]||"-")+"</div></div></div>";}).join("");}
+  else{lista.innerHTML=hist.map(function(t){const d=new Date(t[0]);const fs=!isNaN(d)?d.getDate()+" "+meses[d.getMonth()]:String(t[0]).slice(0,8);var eHist=norm(t[6]);var badgeHist=eHist.includes("confirmado")?"<span style='color:var(--sage-dark);font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(122,158,126,0.12);padding:2px 7px;border-radius:10px;'>CONF</span>":"<span style='color:var(--sage-dark);font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(90,122,94,0.1);padding:2px 7px;border-radius:10px;'>REALIZ</span>";return "<div class='hist-row'><div class='hist-fecha'>"+fs+"</div><div style='flex:1'><div class='hist-srv' style='display:flex;align-items:center;gap:6px;'>"+(t[3]||"-")+" "+badgeHist+"</div>"+(t[16]?"<div class='hist-obs'>📝 "+t[16]+"</div>":"<div class='hist-obs'>"+(t[15]||"-")+"</div>")+"</div></div>";}).join("");}
   document.getElementById("fichaGrid").style.display="grid";
 }
 
