@@ -159,6 +159,48 @@ body::before{content:"";position:fixed;inset:0;
 .turno-nombre{font-size:12px;font-weight:500;color:var(--dark);}
 .turno-srv{font-size:10px;color:var(--warm-gray-light);margin-top:2px;}
 .turno-monto{font-size:12px;font-weight:500;color:var(--sage-dark);min-width:80px;text-align:right;}
+/* Acciones de turno */
+.turno-row{ flex-wrap:wrap; }
+.turno-actions{
+  display:none; width:100%; margin-top:10px;
+  padding-top:10px; border-top:1px solid rgba(122,158,126,0.15);
+  gap:8px; flex-direction:column;
+}
+.turno-row.expanded .turno-actions{ display:flex; }
+.turno-btns{ display:flex; gap:6px; flex-wrap:wrap; }
+.btn-turno{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 12px;border-radius:8px;font-size:10px;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;
+  font-family:"Jost",sans-serif;transition:opacity .15s;
+}
+.btn-turno:hover{ opacity:0.82; }
+.btn-confirmar{ background:rgba(90,122,94,0.12);color:var(--sage-dark);border:1px solid rgba(90,122,94,0.3); }
+.btn-cancelar{  background:rgba(180,100,100,0.1);color:var(--red-soft);border:1px solid rgba(180,100,100,0.3); }
+.btn-wa{        background:rgba(37,211,102,0.1);color:#1a8c44;border:1px solid rgba(37,211,102,0.35); }
+.turno-obs-wrap{ display:flex;gap:6px;align-items:center; }
+.turno-obs-input{
+  flex:1;padding:7px 12px;border-radius:8px;font-size:12px;
+  font-family:"Jost",sans-serif;color:var(--dark);
+  background:rgba(245,240,232,0.8);border:1px solid rgba(122,158,126,0.22);
+  outline:none;
+}
+.turno-obs-input::placeholder{ color:var(--warm-gray-light); }
+.btn-obs-save{
+  padding:7px 12px;border-radius:8px;font-size:10px;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;
+  font-family:"Jost",sans-serif;
+  background:rgba(201,169,110,0.15);color:var(--gold-dark);
+  border:1px solid rgba(201,169,110,0.35);transition:opacity .15s;
+}
+.btn-obs-save:hover{ opacity:0.8; }
+.turno-toast{
+  display:none;font-size:10px;color:var(--sage-dark);
+  background:rgba(90,122,94,0.1);border-radius:6px;
+  padding:4px 10px;margin-top:4px;
+}
+.turno-row.expanded{ background:rgba(255,255,255,0.95)!important; }
+
 .badge{font-size:8.5px;font-weight:600;letter-spacing:1px;padding:3px 9px;border-radius:20px;text-transform:uppercase;white-space:nowrap;}
 .b-conf{background:rgba(122,158,126,0.1);color:var(--sage-dark);border:1px solid rgba(122,158,126,0.22);}
 .b-pend{background:rgba(201,169,110,0.1);color:var(--gold-dark);border:1px solid rgba(201,169,110,0.22);}
@@ -708,7 +750,38 @@ function procesarDatos(data){
     if(hoy.length===0){grid.innerHTML="<div class='empty-msg'>No hay sesiones programadas para hoy</div>";}
     else{
       const ord=[...hoy].sort((a,b)=>String(a[1]).localeCompare(String(b[1])));
-      grid.innerHTML=ord.map(f=>"<div class='turno-row'><div class='turno-hora'>"+fmtHora(f[1])+"</div><div class='turno-sep'></div><div style='flex:1'><div class='turno-nombre'>"+(f[2]||"-")+"</div><div class='turno-srv'>"+(f[3]||"-")+(f[5]?" - GC: "+f[5]:"")+"</div></div>"+badge(f[6])+"<div class='turno-monto'>"+fmtMonto(f[8])+"</div></div>").join("");
+      grid.innerHTML=ord.map(function(f,i){
+        const rowId="turno-row-"+i;
+        const tel=String(f[9]||f[4]||"").replace(/\D/g,"");
+        const waNum=tel.startsWith("54")?tel:"54"+tel;
+        const est=norm(f[6]);
+        const obsVal=String(f[16]||"");
+        return "<div class='turno-row' id='"+rowId+"' onclick='toggleTurno(\'"+rowId+"\")' style='cursor:pointer'>"+
+          "<div class='turno-hora'>"+fmtHora(f[1])+"</div>"+
+          "<div class='turno-sep'></div>"+
+          "<div style='flex:1'>"+
+            "<div class='turno-nombre'>"+(f[2]||"-")+"</div>"+
+            "<div class='turno-srv'>"+(f[3]||"-")+(f[5]?" · GC: "+f[5]:"")+"</div>"+
+          "</div>"+
+          badge(f[6])+
+          "<div class='turno-monto'>"+fmtMonto(f[8])+"</div>"+
+          "<div class='turno-actions' onclick='event.stopPropagation()'>"+
+            "<div class='turno-btns'>"+
+              (est!=="confirmado"?"<button class='btn-turno btn-confirmar' onclick=\"accionTurno('confirmar','"+f[0]+"','"+f[1]+"','"+f[2]+"','"+rowId+"')\">"+
+                "<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><polyline points='20 6 9 17 4 12'/></svg> Confirmar</button>":"")+
+              (est!=="cancelado"?"<button class='btn-turno btn-cancelar' onclick=\"accionTurno('cancelar','"+f[0]+"','"+f[1]+"','"+f[2]+"','"+rowId+"')\">"+
+                "<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg> Cancelar</button>":"")+
+              (tel?"<a class='btn-turno btn-wa' href=\"https://wa.me/"+waNum+"?text=Hola%20"+encodeURIComponent(f[2]||"")+"%2C%20te%20confirmo%20tu%20turno%20en%20En%20Calma%20para%20el%20"+encodeURIComponent(fmtFecha(f[0]))+(f[1]?"%20a%20las%20"+encodeURIComponent(fmtHora(f[1]))+"%20hs":"")+".%20%F0%9F%8C%BF\" target=\"_blank\" onclick=\"event.stopPropagation()\">"+
+                "<svg width='11' height='11' viewBox='0 0 24 24' fill='currentColor'><path d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z'/></svg> WhatsApp</a>":"") +
+            "</div>"+
+            "<div class='turno-obs-wrap'>"+
+              "<input class='turno-obs-input' id='obs-"+rowId+"' type='text' placeholder='Observaciones...' value='"+obsVal.replace(/'/g,"&#39;")+"'>"+
+              "<button class='btn-obs-save' onclick=\"guardarObs('"+f[0]+"','"+f[1]+"','"+f[2]+"','obs-"+rowId+"','toast-"+rowId+"')\">Guardar</button>"+
+            "</div>"+
+            "<div class='turno-toast' id='toast-"+rowId+"'>✓ Guardado</div>"+
+          "</div>"+
+        "</div>";
+      }).join("");
     }
 
     [{id:"srv-Relajante",k:["relajante"]},{id:"srv-Descontracturante",k:["descontracturante"]},{id:"srv-Drenaje",k:["drenaje"]}].forEach(function(s){
@@ -845,6 +918,68 @@ function mostrarGC(){
 
 setInterval(cargarDatos,5*60*1000);
 
+
+function toggleTurno(id){
+  const row=document.getElementById(id);
+  if(row) row.classList.toggle("expanded");
+}
+
+function accionTurno(accion, fecha, hora, nombre, rowId){
+  const btn = event.target.closest("button");
+  const orig = btn ? btn.innerHTML : "";
+  if(btn){ btn.disabled=true; btn.textContent="..."; }
+  const cb="cb_accion_"+Date.now();
+  window[cb]=function(data){
+    delete window[cb];
+    if(btn){ btn.disabled=false; btn.innerHTML=orig; }
+    if(data&&data.ok){
+      // Actualizar badge visualmente
+      const row=document.getElementById(rowId);
+      if(row){
+        const b=row.querySelector(".badge");
+        if(b){
+          const label=accion==="confirmar"?"Confirmado":"Cancelado";
+          const cls=accion==="confirmar"?"b-conf":"b-canc";
+          b.className="badge "+cls;
+          b.textContent=label;
+        }
+        // Ocultar el botón que se usó
+        btn && btn.remove();
+      }
+      mostrarToast(rowId, "✓ "+( accion==="confirmar"?"Confirmado":"Cancelado")+" correctamente");
+    } else {
+      mostrarToast(rowId, "⚠ Error al actualizar");
+    }
+  };
+  const s=document.createElement("script");
+  s.src=API_URL+"?callback="+cb+"&accion=cambiar_estado&fecha="+encodeURIComponent(fecha)+"&hora="+encodeURIComponent(hora)+"&nombre="+encodeURIComponent(nombre)+"&estado="+(accion==="confirmar"?"Confirmado":"Cancelado");
+  s.onerror=function(){ if(btn){btn.disabled=false;btn.innerHTML=orig;} mostrarToast(rowId,"⚠ Error de conexión"); };
+  document.head.appendChild(s);
+}
+
+function guardarObs(fecha, hora, nombre, inputId, toastId){
+  const input=document.getElementById(inputId);
+  const obs=input?input.value.trim():"";
+  const btn=event.target;
+  const orig=btn.textContent;
+  btn.disabled=true; btn.textContent="...";
+  const cb="cb_obs_"+Date.now();
+  window[cb]=function(data){
+    delete window[cb];
+    btn.disabled=false; btn.textContent=orig;
+    const t=document.getElementById(toastId);
+    if(t){ t.textContent=data&&data.ok?"✓ Observación guardada":"⚠ Error al guardar"; t.style.display="block"; setTimeout(()=>t.style.display="none",2500); }
+  };
+  const s=document.createElement("script");
+  s.src=API_URL+"?callback="+cb+"&accion=guardar_obs&fecha="+encodeURIComponent(fecha)+"&hora="+encodeURIComponent(hora)+"&nombre="+encodeURIComponent(nombre)+"&obs="+encodeURIComponent(obs);
+  s.onerror=function(){ btn.disabled=false; btn.textContent=orig; };
+  document.head.appendChild(s);
+}
+
+function mostrarToast(rowId, msg){
+  const t=document.getElementById("toast-"+rowId);
+  if(t){ t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none",2500); }
+}
 
 function actualizarReloj(){
   var now = new Date();
