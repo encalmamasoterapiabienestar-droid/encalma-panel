@@ -46,7 +46,6 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .turno-chip.pendiente{background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.22);}
 .turno-chip.cancelado{background:rgba(180,100,100,0.06);border:1px solid rgba(180,100,100,0.15);opacity:0.7;}
 .turno-chip.oculto{display:none;}
-/* Modal turno */
 .modal-turno{display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;padding:1.5rem;background:rgba(36,40,38,0.55);backdrop-filter:blur(8px);}
 .modal-turno.visible{display:flex;}
 .modal-card{background:#f5f0e8;border-radius:20px;padding:24px;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,0.18);display:flex;flex-direction:column;gap:14px;}
@@ -237,11 +236,121 @@ function renderSemana(){
     <div class="modal-btns" id="mBtns"></div>
     <div class="modal-obs-wrap">
       <input class="modal-obs-input" id="mObsInput" type="text" placeholder="Observaciones...">
-      <button class="mbtn-obs" id="mObsBtn" onclick="guardarObsModal()">Guardar</button>
+      <button class="mbtn-obs" onclick="guardarObsModal()">Guardar</button>
     </div>
     <div class="modal-toast" id="mToast"></div>
   </div>
 </div>
+
+<script>
+var modalTurnoActual = null;
+
+function fmtFecha(v){if(!v)return"-";try{var d=new Date(v);var fa=new Date(d.getTime()+3*60*60*1000);return fa.toLocaleDateString("es-AR");}catch(e){return String(v);}}
+function fmtMonto(v){var n=Number(String(v||0).replace(/[^\d.]/g,""));if(!n||isNaN(n))return"-";return "$"+n.toLocaleString("es-AR");}
+
+function abrirModal(t){
+  modalTurnoActual = t;
+  var estado = norm(t[6]);
+  var fecha = fmtFecha(t[0]);
+  var hora = fmtHora(t[1]);
+  var tel = String(t[4]||t[9]||"").replace(/\D/g,"");
+  var waNum = tel.startsWith("54") ? tel : "54"+tel;
+
+  document.getElementById("mNombre").textContent = t[2]||"-";
+  document.getElementById("mFechaHora").textContent = fecha+" · "+hora+" hs";
+  document.getElementById("mServicio").textContent = t[3]||"-";
+  document.getElementById("mMonto").textContent = fmtMonto(t[8]);
+  document.getElementById("mObsInput").value = t[16]||"";
+  document.getElementById("mToast").style.display = "none";
+
+  var badge = document.getElementById("mEstadoBadge");
+  badge.className = "modal-badge "+estado;
+  badge.textContent = (t[6]||"").charAt(0).toUpperCase()+(t[6]||"").slice(1).toLowerCase();
+
+  var btns = document.getElementById("mBtns");
+  btns.innerHTML = "";
+
+  if(estado!=="confirmado"&&estado!=="realizado"){
+    var bc=document.createElement("button");
+    bc.className="mbtn mbtn-confirmar";
+    bc.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Confirmar';
+    bc.onclick=function(){accionModal("Confirmado");};
+    btns.appendChild(bc);
+  }
+  if(estado!=="cancelado"&&estado!=="realizado"){
+    var bx=document.createElement("button");
+    bx.className="mbtn mbtn-cancelar";
+    bx.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancelar';
+    bx.onclick=function(){accionModal("Cancelado");};
+    btns.appendChild(bx);
+  }
+  if(tel){
+    var bwa=document.createElement("a");
+    bwa.className="mbtn mbtn-wa";
+    var msg="Hola "+encodeURIComponent(t[2]||"")+", te confirmo tu turno en En Calma para el "+encodeURIComponent(fecha)+" a las "+encodeURIComponent(hora)+" hs. \uD83C\uDF3F";
+    bwa.href="https://wa.me/"+waNum+"?text="+msg;
+    bwa.target="_blank";
+    bwa.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg> WhatsApp';
+    btns.appendChild(bwa);
+  }
+  document.getElementById("modalTurno").classList.add("visible");
+}
+
+function cerrarModal(){
+  document.getElementById("modalTurno").classList.remove("visible");
+  modalTurnoActual=null;
+}
+
+function accionModal(nuevoEstado){
+  if(!modalTurnoActual) return;
+  var t=modalTurnoActual;
+  var fecha=fmtFecha(t[0]); var hora=fmtHora(t[1]);
+  mostrarToastModal("Guardando...");
+  var cb="cbAcc_"+Date.now();
+  window[cb]=function(data){
+    delete window[cb];
+    if(data&&data.ok){
+      t[6]=nuevoEstado;
+      var badge=document.getElementById("mEstadoBadge");
+      badge.className="modal-badge "+norm(nuevoEstado);
+      badge.textContent=nuevoEstado;
+      renderSemana();
+      mostrarToastModal("\u2713 "+nuevoEstado+" correctamente");
+      setTimeout(cerrarModal,1400);
+    } else {
+      mostrarToastModal("\u26A0 Error: "+(data&&data.error||"intentá de nuevo"));
+    }
+  };
+  var s=document.createElement("script");
+  s.src=API_URL+"?callback="+cb+"&accion=cambiar_estado&fecha="+encodeURIComponent(fecha)+"&hora="+encodeURIComponent(hora)+"&nombre="+encodeURIComponent(t[2]||"")+"&estado="+encodeURIComponent(nuevoEstado);
+  s.onerror=function(){mostrarToastModal("\u26A0 Error de conexión");};
+  document.head.appendChild(s);
+}
+
+function guardarObsModal(){
+  if(!modalTurnoActual) return;
+  var t=modalTurnoActual;
+  var fecha=fmtFecha(t[0]); var hora=fmtHora(t[1]);
+  var obs=document.getElementById("mObsInput").value.trim();
+  mostrarToastModal("Guardando...");
+  var cb="cbObs_"+Date.now();
+  window[cb]=function(data){
+    delete window[cb];
+    if(data&&data.ok){ t[16]=obs; mostrarToastModal("\u2713 Observación guardada"); }
+    else { mostrarToastModal("\u26A0 Error al guardar"); }
+  };
+  var s=document.createElement("script");
+  s.src=API_URL+"?callback="+cb+"&accion=guardar_obs&fecha="+encodeURIComponent(fecha)+"&hora="+encodeURIComponent(hora)+"&nombre="+encodeURIComponent(t[2]||"")+"&obs="+encodeURIComponent(obs);
+  s.onerror=function(){mostrarToastModal("\u26A0 Error de conexión");};
+  document.head.appendChild(s);
+}
+
+function mostrarToastModal(msg){
+  var t=document.getElementById("mToast");
+  t.textContent=msg; t.style.display="block";
+  if(msg.charAt(0)==="\u2713") setTimeout(function(){t.style.display="none";},2500);
+}
+</script>
 
 </body>
 </html>
