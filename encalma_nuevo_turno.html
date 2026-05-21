@@ -163,7 +163,7 @@ var API_URL = "https://script.google.com/macros/s/AKfycbzea7eNSEmTKyweirmlqwSs6R
 var datosAPI = null;
 
 // Nav
-document.getElementById("backBtn").addEventListener("click", function(e){ e.preventDefault(); sessionStorage.setItem("encalma_skip_portada","1"); window.location.href="index.html"; });
+document.getElementById("backBtn").addEventListener("click", function(e){ e.preventDefault(); window.location.href="dashboard.html"; });
 document.getElementById("logoLink").addEventListener("click", function(e){ e.preventDefault(); sessionStorage.setItem("encalma_skip_portada","1"); window.location.href="index.html"; });
 document.getElementById("btnNuevo").addEventListener("click", function(){ document.getElementById("successOverlay").classList.remove("visible"); limpiar(); });
 document.getElementById("btnLimpiar").addEventListener("click", limpiar);
