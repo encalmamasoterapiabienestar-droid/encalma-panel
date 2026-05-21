@@ -110,7 +110,7 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 var API_URL = "https://script.google.com/macros/s/AKfycbzea7eNSEmTKyweirmlqwSs6Ru-dxKDNndZKCKrIOZSdFWPXT0KCVkQxFMNA8YETU1W/exec";
 var datosAPI = null;
 
-document.getElementById("backBtn").addEventListener("click", function(e){ e.preventDefault(); sessionStorage.setItem("encalma_skip_portada","1"); window.location.href="index.html"; });
+document.getElementById("backBtn").addEventListener("click", function(e){ e.preventDefault(); if(sessionStorage.getItem("encalma_auth")==="1"){ window.location.href="dashboard.html"; } else { sessionStorage.setItem("encalma_skip_portada","1"); window.location.href="index.html"; } });
 document.getElementById("logoLink").addEventListener("click", function(e){ e.preventDefault(); sessionStorage.setItem("encalma_skip_portada","1"); window.location.href="index.html"; });
 
 ["comprador","beneficiario","gcTel","gcServicio"].forEach(function(id){
