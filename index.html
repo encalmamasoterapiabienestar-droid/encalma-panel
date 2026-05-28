@@ -645,6 +645,19 @@ header {
       </div>
     </div>
 
+    <div class="form-group" style="margin-top:0.5rem;">
+      <label class="form-label" style="display:flex;align-items:center;gap:0.4rem;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--tierra);flex-shrink:0;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><path d="M12 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        Gift Card <span style="font-weight:300;text-transform:none;letter-spacing:0;font-size:0.62rem;color:var(--texto-suave);margin-left:0.3rem;">(opcional)</span>
+      </label>
+      <input type="text" class="form-input" id="inputGiftCard"
+        placeholder="Ej: EC-2024-ABCD"
+        autocomplete="off"
+        oninput="this.value=this.value.toUpperCase()"
+        style="letter-spacing:0.12em;">
+      <div class="form-hint">Si tenés un código de gift card, ingresalo acá.</div>
+    </div>
+
     <div class="msg-error" id="errorEnvio">Hubo un problema al enviar. Intentá de nuevo o escribinos por WhatsApp.</div>
     <button class="btn-primary" id="btnEnviar" onclick="enviarTurno()">Confirmar reserva</button>
     <button class="btn-secondary" onclick="irPaso(2)">← Editar datos</button>
@@ -1116,29 +1129,32 @@ function enviarTurno() {
   btn.disabled = true;
   btn.textContent = 'Enviando...';
 
-  const nombre   = document.getElementById('inputNombre').value.trim();
-  const tel      = document.getElementById('inputTel').value.trim();
-  const servicio = document.getElementById('selectServicio').value;
+  const nombre    = document.getElementById('inputNombre').value.trim();
+  const tel       = document.getElementById('inputTel').value.trim();
+  const servicio  = document.getElementById('selectServicio').value;
+  const giftCard  = document.getElementById('inputGiftCard').value.trim().toUpperCase();
 
   const params = new URLSearchParams({
-    accion:   'nuevo_turno',
-    fecha:    fechaSeleccionada,
-    hora:     horaSeleccionada,
-    cliente:  nombre,
-    servicio: servicio,
-    telefono: tel,
-    estado:   'Pendiente',
-    medio:    '',
-    monto:    '',
-    mensaje:  'Reserva web pública',
-    callback: 'cbEnvio'
+    accion:    'nuevo_turno',
+    fecha:     fechaSeleccionada,
+    hora:      horaSeleccionada,
+    cliente:   nombre,
+    servicio:  servicio,
+    telefono:  tel,
+    estado:    'Pendiente',
+    medio:     '',
+    monto:     '',
+    mensaje:   giftCard ? 'Reserva web pública · Gift Card: ' + giftCard : 'Reserva web pública',
+    gift_card: giftCard,
+    callback:  'cbEnvio'
   });
 
   window.cbEnvio = function(resp) {
     delete window.cbEnvio;
     if (resp && (resp.status === 'ok' || resp.resultado === 'ok')) {
       const msg = encodeURIComponent(
-        `Hola Diego! Acabo de reservar un turno:\n📅 ${fechaSeleccionada} a las ${horaSeleccionada}\n💆 ${servicio}\n👤 ${nombre}`
+        `Hola Diego! Acabo de reservar un turno:\n📅 ${fechaSeleccionada} a las ${horaSeleccionada}\n💆 ${servicio}\n👤 ${nombre}` +
+        (giftCard ? `\n🎁 Gift Card: ${giftCard}` : '')
       );
       document.getElementById('btnWaFinal').href = `https://wa.me/${WA_DIEGO}?text=${msg}`;
       irPaso(4);
