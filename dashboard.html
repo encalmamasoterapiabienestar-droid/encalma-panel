@@ -321,6 +321,164 @@ body::before{content:"";position:fixed;inset:0;
   color:var(--sage-dark);letter-spacing:3px;line-height:1;
   filter:drop-shadow(0 0 6px rgba(90,122,94,0.4));}
 .clock-date{font-size:8px;letter-spacing:2px;color:var(--warm-gray-light);text-transform:uppercase;font-weight:500;}
+
+/* ============================================================
+   RESPONSIVE — NOTEBOOK (≤1280px)
+   ============================================================ */
+@media(max-width:1280px){
+  .header{padding:0 24px;}
+  .main{padding:20px 24px;}
+  .kpi-row{grid-template-columns:repeat(4,1fr);gap:10px;}
+  .kpi-val{font-size:34px;}
+  .srv-grid{grid-template-columns:repeat(4,1fr);gap:9px;}
+  .bottom-row{grid-template-columns:1fr 1fr;gap:10px;}
+  .ficha-grid{grid-template-columns:1fr 1fr;gap:12px;}
+  .gc-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* ============================================================
+   RESPONSIVE — TABLET 11" (≤1024px)
+   ============================================================ */
+@media(max-width:1024px){
+  /* Header */
+  .header{padding:0 20px;height:64px;}
+  .logo-name{font-size:22px;}
+  .date-chip{font-size:10px;padding:6px 11px;}
+  .btn-action{padding:7px 11px;font-size:10px;}
+  .back-btn{padding:7px 11px;font-size:10px;}
+
+  /* Loading bar */
+  .loading-bar{top:64px;}
+
+  /* Main layout */
+  .main{padding:18px 20px;gap:18px;}
+
+  /* KPIs: 2×2 en tablet */
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .kpi-val{font-size:38px;}
+
+  /* Servicios: 2×2 */
+  .srv-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+
+  /* Bottom: columna única */
+  .bottom-row{grid-template-columns:1fr;gap:12px;}
+
+  /* Fichero: columna única */
+  .ficha-grid{grid-template-columns:1fr;}
+  .hist-list{max-height:320px;}
+
+  /* Gift Cards: columna única */
+  .gc-grid{grid-template-columns:1fr;}
+  .gc-visual.visible{display:flex;}
+
+  /* Clock */
+  .clock-time{font-size:22px;}
+
+  /* Header right: ocultar date chip en tablet pequeña */
+  .date-chip span:not(.clock-time){display:none;}
+}
+
+/* ============================================================
+   RESPONSIVE — CELULAR (≤640px)
+   ============================================================ */
+@media(max-width:640px){
+  /* Header mobile */
+  .header{
+    padding:0 16px;
+    height:60px;
+    flex-wrap:nowrap;
+  }
+  .logo-name{font-size:20px;}
+  .logo-sub{display:none;}
+  .date-chip{display:none;}
+  .btn-action span{display:none;}
+  .btn-action svg{width:15px;height:15px;}
+  .btn-action{padding:8px;}
+  .back-btn span{display:none;}
+  .back-btn svg{width:15px;height:15px;}
+  .back-btn{padding:8px;}
+  .header-right{gap:6px;}
+  .loading-bar{top:60px;}
+
+  /* Music button */
+  .music-btn{bottom:16px;right:16px;width:40px;height:40px;}
+
+  /* Portada */
+  .portada-btn{padding:13px 32px;font-size:11px;letter-spacing:2px;}
+
+  /* Main */
+  .main{padding:14px 14px;gap:16px;}
+
+  /* Login */
+  .login-box{padding:36px 28px;min-width:0;width:90vw;}
+  .login-logo-name{font-size:32px;}
+
+  /* KPIs: columna única en móvil */
+  .kpi-row{grid-template-columns:1fr 1fr;gap:9px;}
+  .kpi-card{padding:16px 16px;}
+  .kpi-val{font-size:32px;}
+  .kpi-sub-t{font-size:9px;}
+
+  /* Turnos */
+  .turno-row{padding:10px 12px;gap:10px;}
+  .turno-hora{font-size:19px;min-width:44px;}
+  .turno-monto{min-width:60px;font-size:11px;}
+  .turno-nombre{font-size:11px;}
+  .turno-srv{font-size:9.5px;}
+  .turno-sep{display:none;}
+
+  /* Servicios: 2 columnas en móvil */
+  .srv-grid{grid-template-columns:1fr 1fr;gap:9px;}
+  .srv-card{padding:11px 12px;gap:9px;}
+  .srv-num{font-size:26px;}
+  .srv-name{font-size:10px;}
+  .srv-ico{width:30px;height:30px;}
+
+  /* Bottom: columna única */
+  .bottom-row{grid-template-columns:1fr;}
+
+  /* Panel cards */
+  .panel-card{padding:16px 16px;}
+  .st-val{font-size:20px;}
+
+  /* Fichero */
+  .ficha-grid{grid-template-columns:1fr;}
+  .ficha-card,.hist-card{padding:16px 16px;}
+  .hist-list{max-height:260px;}
+  .dato-lbl{min-width:72px;}
+
+  /* Gift cards */
+  .gc-grid{grid-template-columns:1fr;}
+  .gc-selector-card{padding:16px 16px;}
+  .gc-visual.visible{padding:22px 16px;}
+  .gc-nombre-marca{font-size:30px;}
+  .gc-field{padding:9px 12px;gap:8px;}
+  .gc-field-label{min-width:72px;font-size:12px;}
+  .gc-table th,.gc-table td{font-size:10px;padding:7px 8px;}
+
+  /* Leaf deco — ocultar en móvil */
+  .leaf{display:none;}
+
+  /* Sec title */
+  .sec-title{font-size:12px;}
+
+  /* Quick buttons */
+  .quick-btn{padding:10px 13px;font-size:10.5px;}
+
+  /* Clock zone en header — compacto */
+  .clock-time{font-size:18px;letter-spacing:2px;}
+  .clock-date{display:none;}
+}
+
+/* ============================================================
+   RESPONSIVE — MÓVIL PEQUEÑO (≤380px)
+   ============================================================ */
+@media(max-width:380px){
+  .kpi-row{grid-template-columns:1fr;}
+  .srv-grid{grid-template-columns:1fr 1fr;}
+  .kpi-val{font-size:36px;}
+  .main{padding:12px 12px;}
+}
 </style>
 </head>
 <body>
