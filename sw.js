@@ -1,8 +1,8 @@
 const CACHE_NAME = 'encalma-panel-v1';
 
 const ARCHIVOS_CACHE = [
-  '/dashboard.html',
-  '/manifest.json'
+  'dashboard.html',
+  'manifest.json'
 ];
 
 self.addEventListener('install', event => {
