@@ -1,0 +1,26 @@
+{
+  "name": "En Calma – Panel de Control",
+  "short_name": "En Calma",
+  "description": "Panel de gestión para En Calma Masoterapia & Bienestar",
+  "start_url": "/encalma-panel/dashboard.html",
+  "scope": "/encalma-panel/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f5f0e8",
+  "theme_color": "#5a7a5e",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/encalma-panel/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/encalma-panel/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
