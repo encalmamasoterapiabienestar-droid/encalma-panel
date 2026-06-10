@@ -84,6 +84,65 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .leaf{position:fixed;opacity:0.05;pointer-events:none;z-index:0;}
 .leaf-1{top:4%;right:2%;width:160px;transform:rotate(20deg);}
+/* ============================================================
+   RESPONSIVE — NOTEBOOK (≤1100px)
+   ============================================================ */
+@media(max-width:1100px){
+  .main{padding:20px;}
+  .semana-grid{gap:6px;}
+  .dia-num{font-size:22px;}
+  .chip-hora{font-size:14px;}
+}
+
+/* ============================================================
+   RESPONSIVE — TABLET (≤860px)
+   ============================================================ */
+@media(max-width:860px){
+  .header{padding:0 16px;height:64px;}
+  .logo-name{font-size:20px;}
+  .logo-sub{display:none;}
+  .loading-bar{top:64px;}
+  .main{padding:16px;}
+  .semana-titulo{font-size:20px;}
+  /* Grilla: 4 columnas en tablet */
+  .semana-grid{grid-template-columns:repeat(4,1fr);gap:6px;}
+  .dia-col:nth-child(n+5){display:none;}
+  .semana-nav{flex-wrap:wrap;gap:8px;}
+  .filtros{gap:6px;}
+  .filtro-btn{padding:5px 11px;font-size:9.5px;}
+}
+
+/* ============================================================
+   RESPONSIVE — CELULAR (≤520px)
+   ============================================================ */
+@media(max-width:520px){
+  .header{padding:0 12px;height:58px;}
+  .logo-name{font-size:18px;}
+  .logo-zone img{width:32px;height:32px;}
+  .btn-header span{display:none;}
+  .btn-header{padding:7px 10px;}
+  .loading-bar{top:58px;}
+  .main{padding:12px;}
+  .semana-titulo{font-size:17px;}
+  /* Grilla: 1 día por columna — scroll vertical */
+  .semana-grid{grid-template-columns:1fr;gap:8px;}
+  .dia-col:nth-child(n+5){display:block;}
+  /* Día como fila horizontal compacta */
+  .dia-col{min-height:auto;display:flex;flex-direction:row;align-items:flex-start;gap:0;}
+  .dia-header{padding:10px 12px;border-bottom:none;border-right:1px solid rgba(122,158,126,0.1);min-width:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .dia-turnos{padding:8px;flex:1;}
+  .turno-chip{padding:6px 8px;}
+  .chip-hora{font-size:14px;}
+  .chip-nombre{font-size:9.5px;}
+  .chip-srv{font-size:9px;}
+  .nav-btn{width:32px;height:32px;}
+  .btn-hoy{padding:6px 12px;font-size:10px;}
+  .filtro-btn{padding:5px 10px;font-size:9px;}
+  .leaf{display:none;}
+  .modal-card{padding:18px;max-width:100%;}
+  .modal-titulo{font-size:18px;}
+  .mbtn{padding:7px 10px;font-size:9.5px;}
+}
 </style>
 </head>
 <body>
