@@ -4,11 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>En Calma – Panel de Control</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#5a7a5e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="En Calma">
-<link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -761,7 +756,7 @@ if(sessionStorage.getItem("encalma_auth")==="1"){
 </div>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbzea7eNSEmTKyweirmlqwSs6Ru-dxKDNndZKCKrIOZSdFWPXT0KCVkQxFMNA8YETU1W/exec";
+const API_URL="https://encalma-panel.encalma-masoterapia-bienestar.workers.dev";
 const SHEET_ID="19wLWt_LqXJUqCFGUgypHb_BXGDKQeGITdJsM7-ZNqZs";
 const PASS="EnCalma2025";
 let datosGlobales=null;
@@ -1175,15 +1170,6 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   });
 });
-</script>
-<script>
-if("serviceWorker" in navigator){
-  window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js")
-      .then(r=>console.log("[PWA] SW ok:",r.scope))
-      .catch(e=>console.warn("[PWA] SW error:",e));
-  });
-}
 </script>
 </body>
 </html>
