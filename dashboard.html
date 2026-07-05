@@ -761,7 +761,7 @@ if(sessionStorage.getItem("encalma_auth")==="1"){
 </div>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbzea7eNSEmTKyweirmlqwSs6Ru-dxKDNndZKCKrIOZSdFWPXT0KCVkQxFMNA8YETU1W/exec";
+const API_URL="https://encalma-panel.encalma-masoterapia-bienestar.workers.dev";
 const SHEET_ID="19wLWt_LqXJUqCFGUgypHb_BXGDKQeGITdJsM7-ZNqZs";
 const PASS="EnCalma2025";
 let datosGlobales=null;
@@ -851,26 +851,20 @@ function cargarDatos(){
   const bar=document.getElementById("loadingBar");
   if(btn)btn.classList.add("spinning");
   bar.classList.add("active");
-  
-  // Remove old script if exists
-  const old=document.getElementById("jsonp_script");
-  if(old)old.remove();
-  
-  window.__jsonpCallback=function(data){
-    procesarDatos(data);
-    if(btn)btn.classList.remove("spinning");
-    bar.classList.remove("active");
-  };
-  
-  const script=document.createElement("script");
-  script.id="jsonp_script";
-  script.src=API_URL+"?callback=__jsonpCallback";
-  script.onerror=function(){
-    document.getElementById("turnosHoyGrid").innerHTML="<div class=\'empty-msg\' style=\'color:var(--red-soft)\'>Error al cargar datos.</div>";
-    if(btn)btn.classList.remove("spinning");
-    bar.classList.remove("active");
-  };
-  document.head.appendChild(script);
+
+  fetch(API_URL)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      procesarDatos(data);
+      if(btn)btn.classList.remove("spinning");
+      bar.classList.remove("active");
+    })
+    .catch(function(err){
+      console.error("Error cargando datos:", err);
+      document.getElementById("turnosHoyGrid").innerHTML="<div class=\'empty-msg\' style=\'color:var(--red-soft)\'>Error al cargar datos.</div>";
+      if(btn)btn.classList.remove("spinning");
+      bar.classList.remove("active");
+    });
 }
 
 function procesarDatos(data){
@@ -1091,33 +1085,34 @@ function accionTurno(accion, fecha, hora, nombre, rowId){
   const btn = event.target.closest("button");
   const orig = btn ? btn.innerHTML : "";
   if(btn){ btn.disabled=true; btn.textContent="..."; }
-  const cb="cb_accion_"+Date.now();
-  window[cb]=function(data){
-    delete window[cb];
-    if(btn){ btn.disabled=false; btn.innerHTML=orig; }
-    if(data&&data.ok){
-      // Actualizar badge visualmente
-      const row=document.getElementById(rowId);
-      if(row){
-        const b=row.querySelector(".badge");
-        if(b){
-          const label=accion==="confirmar"?"Confirmado":"Cancelado";
-          const cls=accion==="confirmar"?"b-conf":"b-canc";
-          b.className="badge "+cls;
-          b.textContent=label;
+  const url=API_URL+"?accion=cambiar_estado&fecha="+encodeURIComponent(fecha)+"&hora="+encodeURIComponent(hora)+"&nombre="+encodeURIComponent(nombre)+"&estado="+(accion==="confirmar"?"Confirmado":"Cancelado");
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(btn){ btn.disabled=false; btn.innerHTML=orig; }
+      if(data&&data.ok){
+        // Actualizar badge visualmente
+        const row=document.getElementById(rowId);
+        if(row){
+          const b=row.querySelector(".badge");
+          if(b){
+            const label=accion==="confirmar"?"Confirmado":"Cancelado";
+            const cls=accion==="confirmar"?"b-conf":"b-canc";
+            b.className="badge "+cls;
+            b.textContent=label;
+          }
+          // Ocultar el botón que se usó
+          btn && btn.remove();
         }
-        // Ocultar el botón que se usó
-        btn && btn.remove();
+        mostrarToast(rowId, "✓ "+( accion==="confirmar"?"Confirmado":"Cancelado")+" correctamente");
+      } else {
+        mostrarToast(rowId, "⚠ Error al actualizar");
       }
-      mostrarToast(rowId, "✓ "+( accion==="confirmar"?"Confirmado":"Cancelado")+" correctamente");
-    } else {
-      mostrarToast(rowId, "⚠ Error al actualizar");
-    }
-  };
-  const s=document.createElement("script");
-  s.src=API_URL+"?callback="+cb+"&accion=cambiar_estado&fecha="+encodeURIComponent(fecha)+"&hora="+encodeURIComponent(hora)+"&nombre="+encodeURIComponent(nombre)+"&estado="+(accion==="confirmar"?"Confirmado":"Cancelado");
-  s.onerror=function(){ if(btn){btn.disabled=false;btn.innerHTML=orig;} mostrarToast(rowId,"⚠ Error de conexión"); };
-  document.head.appendChild(s);
+    })
+    .catch(function(){
+      if(btn){btn.disabled=false;btn.innerHTML=orig;}
+      mostrarToast(rowId,"⚠ Error de conexión");
+    });
 }
 
 function guardarObs(fecha, hora, nombre, inputId, toastId){
@@ -1126,17 +1121,17 @@ function guardarObs(fecha, hora, nombre, inputId, toastId){
   const btn=event.target;
   const orig=btn.textContent;
   btn.disabled=true; btn.textContent="...";
-  const cb="cb_obs_"+Date.now();
-  window[cb]=function(data){
-    delete window[cb];
-    btn.disabled=false; btn.textContent=orig;
-    const t=document.getElementById(toastId);
-    if(t){ t.textContent=data&&data.ok?"✓ Observación guardada":"⚠ Error al guardar"; t.style.display="block"; setTimeout(()=>t.style.display="none",2500); }
-  };
-  const s=document.createElement("script");
-  s.src=API_URL+"?callback="+cb+"&accion=guardar_obs&fecha="+encodeURIComponent(fecha)+"&hora="+encodeURIComponent(hora)+"&nombre="+encodeURIComponent(nombre)+"&obs="+encodeURIComponent(obs);
-  s.onerror=function(){ btn.disabled=false; btn.textContent=orig; };
-  document.head.appendChild(s);
+  const url=API_URL+"?accion=guardar_obs&fecha="+encodeURIComponent(fecha)+"&hora="+encodeURIComponent(hora)+"&nombre="+encodeURIComponent(nombre)+"&obs="+encodeURIComponent(obs);
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      btn.disabled=false; btn.textContent=orig;
+      const t=document.getElementById(toastId);
+      if(t){ t.textContent=data&&data.ok?"✓ Observación guardada":"⚠ Error al guardar"; t.style.display="block"; setTimeout(()=>t.style.display="none",2500); }
+    })
+    .catch(function(){
+      btn.disabled=false; btn.textContent=orig;
+    });
 }
 
 function mostrarToast(rowId, msg){
